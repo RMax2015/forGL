@@ -32,11 +32,12 @@ Test platforms used:
 Laptops running Windows 7 and 10.
 
 **Languages used to implement forGL tested: C++, Java, Python, (all working well)**
-**C# (no color or cursor positioning), **
+
+**C# (no color or cursor positioning),**
+
 JavaScript (not really working).
 
 Very incomplete testing on old Android phone with incomplete JavaScript / HTML / JavaScript Web Worker (from Haxe).
-
 
 
 **... Under Construction ...**
