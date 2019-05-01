@@ -1,0 +1,382 @@
+# This is a forGL dictionary as a TOML document.  (Prototype version of forGL)
+#
+# .toml is the required file extension to avoid some parse problems
+#
+# UTF8 character encoding is required
+#
+# User viewpoint: Definitions of forGL words in the dictionary act
+# like Nouns and Verbs (and other Natural Language or Math ideas) ...
+# forGL Library viewpoint: like Data and Code and Math operators, ...
+
+# Required: 
+# Must be the first section of a dictionary
+[forGL_dictionary]
+
+# This is the number of times that this dictionary file has been saved with 1 or more changes.
+content_change_number = 0
+
+# Required: 
+# Version of the way of representing a forGL dictionary. Semantic version 2 approach
+# If you want to track how many times content within a specific dictionary changes 
+# see: forGL_dictionary.content_change_number above
+#
+[version]
+version = 0.0.1.Alpha
+
+# Optional: 
+# Hint about Natural Language name.  Must be English name of Language.
+[language]
+natural_language = English
+
+# Optional:
+# This is to allow new languages to be defined that are not part of already built in language support.
+# Maybe a language from a book or cinema (movie) or game?
+#
+# If you have a natural_language like German or Spanish 
+# then these settings are ignored because the reading_order is already known.
+#
+# Also for Mathematics the reading_order is set as Left to Right and Top to Bottom
+#
+# Reading order: Left to Right and Top to Bottom OR Right to Left and Top to Bottom
+[reading_order]
+left_to_right = true
+top_to_bottom = true
+
+
+# Optional:
+[money]
+monetary_unit_symbol = "$"
+
+# Optional:
+[decimal]
+decimal_point = "."
+
+#Optional:
+[thousands]
+thousands_sep = ","
+
+
+#          Information needed to define a word:
+#
+#     Name		(required and must be unique in spelling)
+#
+# The first character of any name must Not be a number digit (0 to 9).
+#     Other number digits may also be invalid for languages that use them.
+#
+# A name must Not have:
+#     any blank space or tab character
+#     any \ (back slash) or newline (carriage Return or Line Feed) character
+#
+# A User defined name must Not contain:
+# reserved Mathematics, Logical, Grouping operators or Punctuation characters.
+#   + - * / % < <= == = > >= ! ? != ( ) [ ] { } . , ; : ... 
+# All of the above are invalid for User defined names 
+# as they are already being used by forGL.
+#
+# If this is any User defined name you may have any combination of
+# other valid UTF8 characters that follow the above requirements.
+#
+# You are not limited to using only characters within a specific natural language.
+#
+# 	Type	(required and must be: Noun or Verb or Operator or Choice)
+#
+# A Noun must have a value such as:
+#   a quoted string "Hi there! "
+#   a number such as: 3.5 or 11 or 1.7654e5 or 0xf001
+#   a Bool which will may be either true or false
+#
+#   Any Noun as a defined word in a dictionary must have a value.
+#
+# A Verb is a definition of some action(s) that are wanted.
+#   Constants like a specific string, number or Bool value 
+#   are found in verb definitions.
+#
+# Verb(s) can also use what looks like a Noun that is not defined.
+#   Undefined Nouns are used locally within the verb and 
+#      are not available in other verbs. These are called local nouns.
+#
+# Operator(s) are similar to verb(s) that are limited to one possible action.
+# Provided operator(s) use 0, 1 or 2 data items (Nouns or constants)
+# 
+# There are some already defined words that help with some common tasks.
+# These are called Built In Verbs:
+# repeat
+# show
+# view
+#
+# 	Built In Name		(Required only for Operators. Must be in English)
+#
+#   value               (Required for Nouns and Verbs)
+#
+#       Nouns: value Examples
+#   value = 5         (integer number)
+#   value = 0x15      (integer as Hexadecimal = 21 here)
+#   value = 5.7654e2  (scientific notation for floating point number = 576.54)
+#   value = true      (Boolean)
+#   value = "Having a wonderful time. Wish you were here."	(string)
+#   value = ""        (a string that has no text characters, an empty string)
+#   value = """Having
+#   a
+#   wonderful
+#   time."""           (multi-line string as 4 lines)
+#
+#       Verbs: value Examples 
+#              MAY be multi-line strings of the definition.
+#              Multi-line strings start and end with 3 double Quote characters.
+#              3 double Quote characters allow quoted strings inside a verb.
+#   value = """"Hi there! " = y. y show."""
+#   value = """45 radians = x. sin(x)/cos(x) show"""
+#   value = ""
+#   
+#   value = """blat equals 32. 
+#   blat times 0x12. 
+#   show  1000  REPEAT"""
+#
+#           OR
+#   Use only 1 double Quote character if there will be NO inside quoted strings.
+#   value = "x = 45 radians. sin(x)/cos(x) show"
+#
+# 		Operators that use 2 Data items
+#
+
+#		Arithmetic
+#
+# This must be unique in spelling.  Wrong to have [_PLUS] and later [_plus]
+[_Plus]
+# Must be: noun, verb, operator, or choice
+word_type = "operator"
+
+# Must be unique in spelling. Change "plus" to support any language.
+name = "plus"
+
+# Do Not change this Built In Operator name
+built_in_name = "+"
+
+
+[_Minus]
+word_type = "operator"
+name = "minus"
+built_in_name = "-"
+
+
+[_Multiply]
+word_type = "operator"
+name = "multiply"
+built_in_name = "*"
+
+
+[_Divide]
+word_type = "operator"
+name = "divide"
+built_in_name = "/"
+
+
+[Modulo]
+word_type = "operator"
+name = "modulo"
+built_in_name = "%"
+
+[Decrement]
+word_type = "operator"
+name = "decrement"
+built_in_name = "--"
+
+[Increment]
+word_type = "operator"
+name = "increment"
+built_in_name = "++"
+
+#		 Comparison			(these need 2 Data items, result is Bool: true or false)
+#
+[Is_Equal]
+word_type = "operator"
+name = "isEqual"
+built_in_name = "=="
+
+[Is_Not_Equal]
+word_type = "operator"
+name = "notEqual"
+built_in_name = "!="
+
+[Is_Less_Than]
+word_type = "operator"
+name = "lessThan"
+built_in_name = "<"
+
+[Is_Less_Or_Equal]
+word_type = "operator"
+name = "lessOrEqual"
+built_in_name = "<="
+
+[Is_Greater_Than]
+word_type = "operator"
+name = "greaterThan"
+built_in_name = ">"
+
+[Is_Greater_Or_Equal]
+word_type = "operator"
+name = "greaterOrEqual"
+built_in_name = ">="
+
+#		Choice
+#
+word_type = "choice"
+name = "If"
+built_in_name = "if"
+
+
+
+#		Mathematics
+#
+
+# Uncomment this to see a message about a non Unique word
+#[Modulo]
+#word_type = "operator"
+#name = "modulo"
+#built_in_name = "%"
+
+[limit]
+word_type = "noun"
+name = "limit"
+value = 7
+
+[n1]
+word_type = "noun"
+name = "n1"
+value = 7
+
+[result]
+word_type = "noun"
+name = "result"
+value = 0
+
+[factorial]
+word_type = "verb"
+# Put a number on the Data stack (like 5) to find the factorial.
+name = "factorial"
+value = into L. 1. into p. 1 into i. while ( i <= L ){ p * i into p. i + 1 into i.} p.
+
+[Faktorial]
+word_type = "verb"
+# Legen Sie eine Nummer auf den Datenstapel (wie 5), um das Faktorial zu finden.
+name = "Faktorial"
+value = geht L. 1. geht p. 1 geht i. Während(i<=L){p*i geht p. i+1 geht i} p.
+
+[fib]
+word_type = "verb"
+# Put a number on the Data stack (like 7) if you want the 8th Fibonacci number.
+# This counts from 0 instead of 1 for the number you give. So 0 would give the 1st.
+name = "Fib"
+value = into L.if ( 0 == L ) { 0 return }
+if ( 2 <= L ) { 1 return }
+1 into p. 
+2 into q.
+p + q into f.
+3 into n. 
+while ( n <= L )
+{
+	p + q into f. 
+	q into p. 
+	f into q.
+	n + 1 into n.
+	n show.
+}
+f
+if ( 0 == L ) { 0 return }
+if ( 2 <= L ) { 1 return }
+1 into p. 
+2 into q.
+p + q into f.
+3 into n. 
+while ( n <= L )
+{
+	p + q into f. 
+	q into p. 
+	f into q.
+	n + 1 into n.
+	n show.
+}
+f
+
+[v1]
+word_type = "verb"
+name = "v1"
+value = 5 =: n1. n1 show
+
+[_from_]
+word_type = "operator"
+name = "from"
+built_in_name = ":="
+
+[_into_]
+word_type = "operator"
+name = "into"
+built_in_name = "=:"
+
+[_TEST_FACTORIAL_]
+word_type = "verb"
+name = "TEST_FACTORIAL"
+value = into L. 1 into I. while(I<=L){I factorial. " " + show. I+1 into I}
+
+[_TEST_FIB_]
+word_type = "verb"
+name = "TEST_FIB"
+value = into L. 1 into I. while(I<=L){I Fib. " " + show. I+1 into I}
+
+[_glücklich_]
+word_type = "noun"
+name = "glücklich"
+value = "glücklich ist besser"
+
+[_feliz_]
+word_type = "noun"
+name = "feliz"
+value = "feliz es mejor"
+
+[_heureux_]
+word_type = "noun"
+name = "heureux"
+value = "heureux c'est mieux"
+
+[_felice_]
+word_type = "noun"
+name = "felice"
+value = "felice è meglio"
+
+[_happy_]
+word_type = "noun"
+name = "happy"
+value = "happy is better"
+
+[_geht_]
+word_type = "operator"
+name = "geht"
+built_in_name = "into"
+
+[_von_]
+word_type = "operator"
+name = "von"
+built_in_name = "from"
+
+[_wenn_]
+word_type = "choice"
+name = "Wenn"
+built_in_name = "if"
+
+[_Während_]
+word_type = "choice"
+name = "Während"
+built_in_name = "while"
+
+# Below is an example of how to add another Name to a Built In Verb
+# 'show' in English is approximately 'zeigen' in German
+[_zeigen_]
+word_type = "operator"
+name = "zeigen"
+built_in_name = "show"
+
+[_wiederholen_]
+word_type = "operator"
+name = "Wiederholen"
+built_in_name = "repeat"
+

@@ -1,0 +1,93 @@
+References_Programming Languages & Browsers
+
+
+			Data & Design
+Fusing data and design to supercharge innovation—in products and processes
+
+architect Eliel Saarinen’s advice to 
+“always design a thing by considering it in its next larger context—
+a chair in a room, a room in a house, a house in an environment, an environment in a city plan”
+
+https://www.mckinsey.com/business-functions/mckinsey-analytics/our-insights/fusing-data-and-design-to-supercharge-innovation-in-products-and-processes?utm_medium=email&utm_source=topic+optin&utm_campaign=awareness&utm_content=20190424+data+nl&mkt_tok=eyJpIjoiWVRKbFlqaGhOV0l3WXpGaCIsInQiOiJVUU1ROVwvTld2RHU0Y3I1K2VxbDZhOWxobWx2QktMVWpsYU41ajBrc0xvakhNa2Vnc2JqZ2g5dXU5TjJIdllHR1ZPM2UxOWtNYitTZ2F3QUVXbXJvOXRsOFNhQndrdklhN1pZdWx4NEFxcE1pM3lcL1c3c0NBQ3Jydzh5c0lnMEsrIn0%3D
+
+
+					Programming Languages & Browsers
+==============================================================================
+
+	Browsers:  Lin Clark (Code Cartoonist and Mozilla developer)
+The future of Web Browsers is Parallel.
+Coarse Grained Parallelism, Fine Grained Parallelism, 
+Faster App code using: Web Workers, Better JavaScript engines, WebAssembly
+Rust as implementation language merged into newer FireFox browsers.
+https://www.youtube.com/watch?v=xCBWS8G5Cm0&ab_channel=JSKongress
+
+
+	Anders Hejlsberg 
+talks about programming and compilers ...
+Algol -> Pascal subset -> Pascal -> Marketed as Turbo Pascal -> Visual J++ 6.0 -> .Net and C# -> TypeScript
+"... don't accept the dogma."
+Keep an open mind.
+~13 minutes
+https://www.youtube.com/watch?v=tmOmFfcA9us
+
+
+	Anders Hejlsberg 
+on Modern Compiler Construction
+
+"...using Functional programming ideas within modern compilers..."
+
+https://www.youtube.com/watch?v=wSdV1M7n4gQ
+
+
+Guido van Rossum: BDFL Python 3 retrospective
+
+
+
+https://www.youtube.com/watch?v=Oiw23yfqQy8
+
+
+	Go language Authors Panel
+
+Go can compile to WebAssembly
+
+Goals:
+Concurrency easy to do
+Compactness
+Readability and Ease of Understanding
+Designed for Programming in the Large
+
+Problems:
+Int is 32 or 64 bits.
+	Should have had explicit Int32 and Int64
+	
+Context feature
+
+https://www.youtube.com/watch?v=3yghHvvZQmA&feature=youtu.be&utm_medium=email&utm_source=topic+optin&utm_campaign=awareness&utm_content=20190420+prog+nl&mkt_tok=eyJpIjoiTUdRNFlqSm1aRFEzWTJJMyIsInQiOiJ1anlZT3hpTkVWMnA4XC9GMWg4MndURmQwUktKOEtaOFlvMk4zRjNmRXRSRHZMU3pJN1FYZjY3R1lpaWwwTUs0bTUzNWxzSXZxXC9yZ3RkUWRxVVROZzVJTHpET0JTK3hTT0RyN0N4NU9PYkprRXVCTnQwWGZuUnBYSXY1enZTMEFOIn0%3D
+
+
+
+	Anders Hejlsberg
+
+FiveThings Why TypeScript is for You
+
+Useful if you are now doing JavaScript or want to do JavaScript
+
+1) Static Types
+Types are good to find Errors Statically instead of at Run time.
+Refactoring
+
+2) 
+can down level back to older versions of JavaScript
+
+TypeScript written in JavaScript ! ! !
+(Huge advantage over Haxe)
+
+
+4) What about if you want to stop using TypeScript ?
+
+Comments in TypeScript compiled to JavaScript (and style is preserved)
+
+5) 
+
+https://www.youtube.com/watch?v=wYgSiFaYSSo
+

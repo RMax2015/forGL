@@ -1,0 +1,42 @@
+Dictionary As Application
+
+
+This is an extension to the Verb  Export As Code  feature.
+
+Idea is to Export As Code the entire Dictionary.
+
+All Verbs become Procedures in the Simplified Programming Language 
+and then whatever is correct in the final target language.
+
+All Nouns become Global Data items.
+
+All Local Nouns become local variables within the containing Procedure (original Verb).
+
+
+Also a really simple menu that just has 1 entry for each Verb Name (now Procedure Name).
+
+May also provide a CLI argument interface to allow Automated running.
+	Cool idea:
+Menu is converted to something like COM IUnknown (JSON implementation perhaps)
+where individual interfaces can be discovered at runtime simply and by code.
+Interfaces would be really simple similar to IDL (or JSON or GRPC or ?) without extra stuff.
+
+Later this Cool idea could be expanded to like a file based DLL approach that is OS neutral.
+
+		AND / OR
+
+User could select the Procedure to run.
+If Procedure needs some input data then User provides that as well.
+
+		Simple yet could be quite useful because:
+
+Code runs at Compiled or JIT Compiled or Efficient Interpreter speed
+instead of forGL Interpreter speed.
+
+Sometimes you have already defined the Solution 
+and you do NOT want extra flexability and complexity of the forGL Interpreter.
+
+Sometimes you want to do A / B testing and this way it is easy to select either.
+
+Sometime you want to run just a part of the Solution. Testing use or ???
+

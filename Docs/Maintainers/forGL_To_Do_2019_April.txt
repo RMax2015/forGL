@@ -1,0 +1,25 @@
+forGL To Do  April 2019
+
+
+
+Prepare for GitHub publish  April ?
+
+_forGL_Read_Me_First.txt
+
+
+Make progress on Export As feature
+
+
+Add typical CallThis( arg ) support  At least for 0 or 1 arguments.
+
+Fix cursor positioning and text overwrite defects at least for C++ build.
+
+Support for Automated Testing
+   Incoming values in .toml file
+      Maybe as part of a Dictionary file ?
+	  
+   Use of values to control forGL running
+   Capture results of running to a forGL_Log_Verb_name.txt
+      Dictionary name and Path will be first entry of the Log file
+
+

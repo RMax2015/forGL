@@ -1,0 +1,38 @@
+References_Natural  Languages
+
+
+
+								Natural  Languages
+==============================================================================
+
+	Translation  sites:
+
+	English
+To / From  with over a dozen other Languages
+https://www.collinsdictionary.com/translator
+
+
+	German  
+To / From  with over a dozen other Languages
+https://en.langenscheidt.com/english-german/
+
+
+
+Which languages are written right-to-left (RTL)?
+
+http://www.i18nguy.com/temp/rtl.html
+
+
+
+	Fibonacci  Example
+==============================================================================
+
+A graphical introduction to dynamic programming
+
+Shows how to go from Recursive Fib to nice iterative Fib
+
+
+https://avikdas.com/2019/04/15/a-graphical-introduction-to-dynamic-programming.html?utm_medium=email&utm_source=topic+optin&utm_campaign=awareness&utm_content=20190420+prog+nl&mkt_tok=eyJpIjoiTUdRNFlqSm1aRFEzWTJJMyIsInQiOiJ1anlZT3hpTkVWMnA4XC9GMWg4MndURmQwUktKOEtaOFlvMk4zRjNmRXRSRHZMU3pJN1FYZjY3R1lpaWwwTUs0bTUzNWxzSXZxXC9yZ3RkUWRxVVROZzVJTHpET0JTK3hTT0RyN0N4NU9PYkprRXVCTnQwWGZuUnBYSXY1enZTMEFOIn0%3D
+
+
+

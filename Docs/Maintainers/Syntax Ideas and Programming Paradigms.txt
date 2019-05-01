@@ -1,0 +1,153 @@
+Syntax Ideas and Programming Paradigms
+
+NOW  April 2019
+
+forGL NOW (April 2019) has 
+fairly good working Concatenative 
+& very limited Imperative choice & Declarative syntax / notation.
+
+Concatenative
+=============
+forGL allows a wide variety of combinations of the parts of a statement:
+Nouns						Name of and Value given to: a person, place or thing
+Verbs						Choose the terms you want to describe either the Problem or Solution or both
+Operators					Imperative in effect, some help with not being too close to HW
+Verbs that are Built In		Declarative ... sat WHAT you want and it will be done
+Punctuation 				some way to see that there is an end of a statement
+
+Imperative Notation
+===================
+These are ideas that express HOW to do something.
+Math operators
+
+Math functions
+You can point out that Math functions are Declarative typically.
+
+Choice  based on a Bool comparison.  true  or  false
+If  true   a reading (and execution) path through the Verb is chosen.
+If  false  the reading path for the  true  comparison is skipped over.
+
+
+Examples:
+
+
+
+
+
+
+Declarative Notation   NOW  April 2019
+====================
+
+WHAT you want and it will be done
+
+Show    a Value from the Data stack is displayed in the User Interface
+
+Repeat  will use a Data stack value as a beginning Repeat Count to do.
+        Repeat Count value should be a positive Integer (1 or more).
+
+
+Error Handling
+==============
+
+        If show has no value then this is a Problem:
+1)  This is a logical error in the Verb OR a Verb that ran before this Verb.
+Display the fact that no Data value is available and stop.
+
+OR
+2)  This is a logical error in the Verb OR a Verb that ran before this Verb.
+Instead add an entry to the Run log and run the next word.
+
+OR
+3)  This is a logical error in the Verb OR a Verb that ran before this Verb.
+Do nothing about Problem that  show  has and run the next word.
+
+1) is done now
+2) needs Logging to be implemented and then you allow Logging
+3) is the most dangerous because the Problem is ignored (see Defects NOTE)
+
+Reapeat  has similar Error Handling needs
+
+
+
+		forGL Defects NOTE
+		==================
+Because forGL is a prototype with various Defects that are Known 
+and other Defects not found yet:
+The forGL application will make statements 
+about what seems to be likely reasons for a Problem.
+
+    forGL may actually have an Internal Defect that caused the Problem such as:
+Not doing an Assignment to the correct Noun.
+Not creating a Data value correctly.
+Not putting a Data value on the Data stack correctly.
+
+The above Defects have been fixed in some combinations that were tested but:
+MUCH more testing is needed.
+Need Automated tests to detect old fixed Defects that happen again.
+
+
+
+Procedure Call Notation		SOON  April to May 2019
+=======================
+
+It is important you understand Procedure calls and their very wide use in programming languages.
+Working examples of Procedure calls from your selected forGL Verb(s) are part of Export As Code.
+
+Instead of the Concatenative notation that forGL supports 
+you may use a style that MANY programming languages use.
+
+concatenative:
+"Hello there!" show.
+
+procedure call:
+show( "Hello there!" ).
+
+concatenative:
+45 radians sin into x. x show.
+or even
+45 radians sin show.
+
+sin called like a procedure but the argument within ( ) is concatenative:
+sin(45 radians) into x. x show.
+
+all procedural and have Assignment in Math style that most programming languages use.
+x = sin(radians(45)). show(x).
+or even 
+show(sin(radians(45))).
+
+
+
+SOON  April to May 2019
+forGL will support 0 or 1 Procedure arguments.
+
+examples:
+show( 7 ).
+
+show().  The Data value that show( ) needs is not given as an argument.
+		This is likely an error when typing this statement.
+		Error Handling as given above for show.
+	Also
+		Because the Procedural is in addition to the Concatenative style:
+		If statement was like:
+		7 show().
+		It could be changed to:
+		show(7).  That is correct and as intended by the Verb definition.
+
+
+
+
+
+
+
+
+
+Declarative Notation   SOON  April to May 2019
+====================
+
+
+
+
+
+
+
+

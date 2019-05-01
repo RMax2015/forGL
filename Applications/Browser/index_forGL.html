@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="utf-8">
+	<title>. forGL ... Interpreter .</title>
+</head>
+<body>
+
+<!-- 
+	<P id="dictionaryNameId"; ALIGN=CENTER STYLE="margin-top: 0in"><FONT FACE="Arial, sans-serif" ></FONT><b>Beginning Dictionary :  forGL_Dictionary_Prototype.toml</b></P>
+-->
+<!-- Load the User Dictionary TOML file as a source text. Not editable -->
+<p><iframe id="dictionaryTextId"; src="forGL_Dictionary_Prototype.toml.html" frameborder="0" height="100" width="98%"></iframe></p>
+	
+<P id="statusId"; ALIGN=CENTER STYLE="margin-top: 0in"><FONT FACE="Arial, sans-serif"; ></FONT><b>  forGL welcomes You!  </b></P>
+
+<fieldset>
+    <legend><b>Please type your Verb and RUN when ready.</b></legend>
+	
+	<button id="runButtonId">RUN</button>
+	<textarea id="userVerbId"; ALIGN=LEFT ></textarea>
+</fieldset>
+
+<fieldset>
+    <legend><b>Verb (as Run by forGL)</b></legend>
+<!-- 
+	maybe use a table ?
+	<textarea id="verbTokensId"; ></textarea>
+-->
+	<textarea id="verbColoredTokensId"; STYLE="color: blue"></textarea>
+	<P id="dataStackId"; ALIGN=LEFT STYLE="margin-top: 0in; color: red"><FONT FACE="Arial, sans-serif"; ></FONT><b>Data</b></P>
+	<P id="opStackId";   ALIGN=LEFT STYLE="margin-top: 0in; color: green"><FONT FACE="Arial, sans-serif"; ></FONT><b>Operators</b></P>
+	<P id="nounStackId"; ALIGN=LEFT STYLE="margin-top: 0in; color: cyan"><FONT FACE="Arial, sans-serif"; ></FONT><b>Nouns</b></P>
+</fieldset>
+	
+<fieldset>
+    <legend><b>Results of Show from your Verb</b></legend>
+	<textarea id="verbOutputId"; ></textarea>
+</fieldset>
+
+<fieldset>
+    <legend><b>Messages</b></legend>
+	<textarea id="messagesId"; ></textarea>
+</fieldset>
+
+<!--  Run the script that manages the GUI events and loads/runs forGL as a Web Worker -->
+	<script src="forGL_Load_Run.js"></script>
+</body>
+</html>

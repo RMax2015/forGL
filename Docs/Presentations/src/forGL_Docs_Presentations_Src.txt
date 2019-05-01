@@ -1,0 +1,19 @@
+forGL / docs / presentations / src  directory  Read Me
+
+
+Slide style presentation at Haxe US Summit May 2019 
+Used a very simple format of Black background and White text.
+
+forGL_at_Haxe_US_2019.odp
+
+Created using Open Office (on Windows 10) 4.1.6
+
+This file is used to create
+forGL_at_Haxe_US_2019.ppt
+in the  forGL / docs / presentations  directory
+and
+in the  forGL / docs / presentations / HTML / forGL_at_Haxe_US_2019  directory
+a HTML slide show 
+
+again using Open Office
+

@@ -1,0 +1,117 @@
+﻿forGL_References
+
+April 2019
+
+REALLY IMPORTANT forGL IDEAS
+============================
+forGL is an application and not a programming language.
+
+	forGL does:
+allow you to try out a simplified Natural Language of your choice to program a computer ...
+allow you to learn a few ideas about computer programming ...
+allow you to Export As Code the simplified Natural Language Verbs and Nouns 
+	to various computer programming languages to enable more learning...
+
+	forGL does not: 
+try to get you to adopt a "purest" viewpoint about programming language theory ...
+try to encourage or even force you to do something the "forGL way". There is no "forGL way" ...
+
+forGL uses ideas from Natural Language and various programming languages
+and a few small contributions of my own.
+
+	If you are worried about Slow forGL Performance:
+forGL application provides an Interpreter, a User Interface, and (on some platforms) file input / output.
+forGL Interpreter is designed to support very flexible combinations of Verbs, Operators, Nouns.
+The flexible combinations (syntax) are to support the simplified Natural Languages of the world.
+forGL Interpreter uses Data, Operator and Noun stacks (and some others).
+Because of the stack based Interpreter, forGL is not as fast as other approaches.
+Because of the ability for you to Export As Code your forGL Verbs:
+other programming languages may be used to run the same logic you defined.
+These other programming languages have many years of effort to not give up performance.
+
+
+	Limitation: No Network programming. 
+	If you want to do programming using Networks:
+forGL does not directly support you programming using various Networking APIs.
+		This is a forGL Design Choice.
+The reason is that using Networking APIs can lead to subjects and problems 
+that are much more advanced than working with programming a single computer platform.
+
+	Limitation: No File system programming.
+	If you want to do programming using the File system of a platform:
+forGL does not directly support you programming using various File system APIs.
+		This is a forGL Design Choice.
+The reason is that using File system APIs can be used to do destructive actions on the platform
+even when the intention of the code is not to be destructive.
+
+THE ABOVE LIMITATIONS are chosen to help avoid several problems in the areas of forGL Security and Safety.
+
+
+
+Here is a list of some References that guided my thinking.
+
+Really Important Ideas
+======================
+
+If you don't read anything else please consider these:
+
+Gödel's Theorem  (Kurt Gödel)
+-----------------------------
+Proved for Mathematics systems using Symbolic Logic.
+
+My paraphrase: 
+You can't learn everything about a system from within that system.
+You need to go outside the system to learn more.
+
+My Assertion: 
+Gödel's Theorem applies to much more than just Mathematics.
+
+
+Thinking by Contract
+--------------------
+Extending Design by Contract idea to other activities.
+
+also see 
+Thinking_by_Contract.doc
+
+So I applied Thinking by Contract and Gödel's Theorem ideas together on forGL.
+
+I had some previous experience with about a dozen programming languages.
+I wanted to enable people to do computer programming like my experience at 
+Amber Software / Cyware.
+
+Practically all of the most used programming languages 
+require (as a Pre Condition) some knowledge of English.
+
+I wanted to remove English as a requirement (Pre Condition) 
+for learning computer programming,
+as Amber allowed European languages to be used.
+
+
+
+
+Programming Languages
+=====================
+
+Programming language creators talk:
+Guido van Rossum (Python)
+James Gosling (Java)
+Anders Hejlsberg (TurboPascal, Delphi, C#, TypeScript)
+Larry Wall (a Linguist. Perl, Perl6)
+Carol Willy (Moderator, Jupyter, Jupyter notebooks)
+https://www.youtube.com/watch?v=csL8DLXGNlU&t=48m30s&utm_medium=email&utm_source=topic+optin&utm_campaign=awareness&utm_content=20190406+prog+nl&mkt_tok=eyJpIjoiTVRJMVpUWXdNbUUxT1dRMSIsInQiOiJWUmJqNVoyNzhmUWNNMlVHb1FSNHdYejJKUFU0MytrTVwvN3B1YUtXU0MwUXBUdExoeUtBUElVb2pUZGFoaHg1Ym1cL1VOV0ZHTjRWREZoYmZGTmhDcWk2cUZnelcyTEFvUUFiOE5lVVMwT3pSV0hORHhGd21NbVRubFNydE5IdWxLIn0%3D
+
+
+
+
+Repository Related
+==================
+
+Guidelines to providers and users of public Software Repositories
+https://softwareengineeringdaily.com/2019/04/04/project-health-assessing-open-source-projects-with-more-context/
+
+
+
+
+Hope this helps!
+Randy Maxwell

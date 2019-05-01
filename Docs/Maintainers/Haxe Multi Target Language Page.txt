@@ -1,0 +1,77 @@
+Email Suggest Haxe Multi Target Language Page Be Created
+
+I have a Use Case in mind:
+
+forGL is going to introduce A LOT of new programmers (perhaps with little
+prior experience) to Haxe.
+Also I expect that a significant fraction (over 50%) may have little or no
+command of English.
+
+For my part, I will put in place documents, tips, FAQs, translated messages
+in the code, and so on to help support those new programmers. I will be
+relying on the Open Source community spirit of sharing that will prompt
+others with skills about various languages to help with translations.
+
+I will also in the forGL side of docs do my best to help programmers with a
+fairly wide range of experience to use the somewhat unique capabilities of
+forGL as best as they may.
+
+I do not automatically favor choosing simplicity over a better description
+that includes high level ideas as well as low level details. And the forGL
+doc set will apply this use of multiple view points as well.
+
+*But here we are trying to improve the experience of programmers using Haxe
+from a wide variety of levels of backgrounds. They may be very experienced
+in a few of the target languages but have little experience with working
+with multiple languages at once. From a past interview with Amazon I know
+that they are very heavily (almost exclusively) into Java for example
+(around 2011).*
+
+In the past the most useful programs that I have found were those that gave
+the User a choice about what level of detail to work with. Ex: there would
+be a menu item that would show all menu items to approach all details or
+just the most commonly used menu items. Now it seems for quite a few
+programmings IDEs to allow the User/Programmer to customize what even gets
+shown (which I and many others appreciate).
+
+So the principle is:
+Having intelligent *Choices *is a GOOD THING.
+
+*A simple example is good.*
+
+*Also a somewhat realistic example of medium to complicated where
+intelligent choices were made to handle the extra complexity I believe even
+better.*
+
+So my strong suggestion is to have a short explanation about both the
+simple and the more involved examples.
+
+*Another factor to keep in mind is that these language setup pages need to
+treat unique aspects of Haxe programming well.* So either having both
+simple examples *and *more involved
+OR
+*Creating another page specifically to address tips about managing a Haxe
+project that uses multiple target languages would be the right thing for
+even very experienced programmers as well as those just learning.*
+
+
+If you decide to create a page about considerations of Haxe projects with
+multiple target languages, I would strongly suggest to not just limit to
+talking about examples of more complicated directories but rather talk
+about trade offs like:
+Which IDEs Editors support both editing Haxe AND the target language(s)
+Which IDEs Debuggers support Debugging in a target language that also has a
+source view of original Haxe while Debugging
+
+and so on. I am sure you can add a lot more to this list.
+
+I think if there is a new page created to help guide choices of Haxe and
+multiple target languages, going through (at least with links or SOME
+bullet points) of the various activities of a full SDLC would also help to
+bring important high level ideas that Haxe uniquely provides as a
+constructive background.
+
+Sorry I can't provide more help now but my "Hobby" is beginning to take up
+more of my time.
+Hope this helps!
+Randy Maxwell
