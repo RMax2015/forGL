@@ -19,7 +19,7 @@ package forGL;
 // import haxe.ds.GenericStack;
 
 using Date;
-import haxe.Int64 as Int64;				// This is a CLASS and NOT a built in TYPE.
+import haxe.Int64 as Int64;			// This is a CLASS and NOT a built in TYPE.
 
 #if js
 	import js.Browser;
@@ -720,7 +720,15 @@ class  ForGL_Run
 									?textLine : Int = -1, ?first_time : Bool = false ) : Void
 	{
 		comment( "", "Helper to support showing Data, Operator and Noun stack values", "" );
-		if ( !first_time && view_DON_throttle )
+		if ( first_time )
+		{
+			prev_dataStackOut = "";
+			prev_opStackOut   = "";
+			prev_nounStackOut = "";
+			last_view_DON_time = Date.now().getTime();
+		}
+		else
+		if ( view_DON_throttle )
 		{
 			comment( "Display changed Data and other values ONLY a few times a second" );
 // 		
@@ -740,27 +748,15 @@ class  ForGL_Run
 		if ( 0 <= textLine )
 		{
 			savePos();
-			if ( ! first_time )
-				goToPos( textLine, 7 );
-			else
-				goToPos( textLine, 0 );
+			goToPos( textLine, 0 );
 		}
 	#end
-		var str = dataStackToString( dStack );
+		var str = "Data  " + dataStackToString( dStack );
 		if ( str != prev_dataStackOut )
 		{
 			setOut( DATA_STACK_OUT );
-			if ( ! first_time )
-			{
-				msg( str, DATA_COLOR );
-				eraseToLineEnd( str.length + 7 );
-			}
-			else
-			{
-				str = "Data  " + str;
-				msg( str, DATA_COLOR );
-				eraseToLineEnd( str.length );
-			}
+			msg( str, DATA_COLOR );
+			eraseToLineEnd( str.length );
 			prev_dataStackOut = str;
 		}
 	
@@ -2042,7 +2038,7 @@ error( "\nINTERNAL ERROR:  " + opMeanAsStr( op_to_do ) + " Wrong Operator to use
 "			Operator Selection",
 "		OLDEST Operators (within the current Group or Stack Frame) are Run first.",
 "			Running OLDEST first supports Invariant of Operator Order.  BUT ...",
-"      Expressions using ( ) after a Operator enables INFERENCE that a Function style was used.",
+"      Expressions using ( ) after a Operator enables INFERENCE that a Procedural style was used.",
 "          After the end ) is hit, this is called with  after_expression  as true.",
 "              The NEWEST and not OLDEST Operator and Data are then run.",
 "          Think of cos(x).  x  Data value is pushed as Newest Data ",
@@ -2324,7 +2320,8 @@ try {
 		// var test_def = "x := 4 ; y := 7 ; z := x * y ; z show";
 		// var test_def = "3=L. 1.0=p. 1=i. while(i<=L){ p*i=p. i+1=i.} p.";
 		// var test_def = "3=L. 1.0=p. i=1. while(i<=L){p*i=p. i=i+1}p";
-		var test_def = "3=L. 1.0=p. i=1. while(i<=L){p=p*i.i+1=i}p";
+		// var test_def = "3=L. 1.0=p. i=1. while(i<=L){p*i=p.i+1=i}p";
+		var test_def = "5 show. show( 7 )";
 		
 		//var test_def = verb_to_run;
 
@@ -2594,7 +2591,7 @@ try {
 		
 		if ( !export_as_code )
 		{
-			msg( "\rDisplay internal Names when running (y/n) ?  " );
+			msg( "\rShow internal Names when running (y/n) ?  " );
 			display_internal = enterYes( );
 
 			run_text_line++;
@@ -3225,7 +3222,7 @@ error( "\nSYNTAX ERROR: count of " + Std.string( nl_Parse.left_groups ) + " Left
 	private inline function runInterpreter()
 #end
 	{
-		comment( "    I N T E R P R E T E R         LOOP    " );
+		comment( "    I N T E R P R E T E R         LOOP    ", "" );
 		var apply_op = false;
 		
 		var i = 0;
@@ -3692,7 +3689,7 @@ comment( "  OPERATORS and VERBS    " );
 					{
 						if ( OP_IS_ASSIGN_TO == op_to_do )
 						{
-				comment( " Special Case: We know Assign To has only 1 destination after it. " );
+				comment( " Special Case: We know Assign To has only 1 destination after it. ", "" );
 							if ( ( NL_NOUN_LOCAL   != runStack[ ip + 1 ].token_type )
 							  && ( NL_TYPE_UNKNOWN != runStack[ ip + 1 ].token_type )		// INFERENCE
 							  && ( NL_NOUN         != runStack[ ip + 1 ].token_type ) )
@@ -3762,7 +3759,7 @@ comment( "  OPERATORS and VERBS    " );
 							
 							dataStack.pop();
 							
-							if ( NL_TYPE_UNKNOWN == runStack[ ip + 1 ].token_type )	// INFERENCE
+							if ( NL_TYPE_UNKNOWN == runStack[ ip + 1 ].token_type )	// INFERENCE this is a Local Noun
 							{
 								if ( ip + 1 == assign_idx )
 								{
@@ -3803,8 +3800,8 @@ comment( "  OPERATORS and VERBS    " );
 					else
 					if ( OP_IS_PI == op_to_do )
 					{
-						var result : Float = Math.PI;
-						dataStack.push( new DataItem( NL_FLOAT, "", result, 0 ) );
+						// var result : Float = Math.PI;
+						dataStack.push( new DataItem( NL_FLOAT, "", Math.PI, 0 ) );
 						
 						steps_done++;
 						ip++;
@@ -3813,8 +3810,8 @@ comment( "  OPERATORS and VERBS    " );
 					else
 					if ( OP_IS_RANDOM == op_to_do )
 					{
-						var result : Float = Math.random();
-						dataStack.push( new DataItem( NL_FLOAT, "", result, 0 ) );
+						// var result : Float = Math.random();
+						dataStack.push( new DataItem( NL_FLOAT, "", Math.random(), 0 ) );
 						
 						steps_done++;
 						ip++;
@@ -4471,6 +4468,13 @@ error( "\nSYNTAX ERROR: count of " + Std.string( nl_Parse.left_groups ) + " Left
 					"Show removes 1 item.",
 					"", "    View will display all items without removal. Handy for User Debugging", "",
 					"Note: View is specific to forGL and not for Export as Code", "" );
+					
+					// See if using Procedure Call syntax, ex:  show( 7 )
+					//if ( ( ip < runStack.length - 1 )
+					//  && ( "(" == runStack[ ip + 1 ].internal_token ) )
+					//  ;
+					//procCall( ip, runStack, dataStack, opStack, nouns );
+					
 					var showing = true;
 					if ( "view" == runStack[ ip ].internal_token )
 					{
