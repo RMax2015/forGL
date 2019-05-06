@@ -3904,7 +3904,12 @@ class forGL_ForGL_Run:
         #                                                                                    ")
         #  Helper to support showing Data, Operator and Noun stack values                    ")
         #                                                                                    ")
-        if ((not first_time) and self.view_DON_throttle):
+        if first_time:
+            self.prev_dataStackOut = ""
+            self.prev_opStackOut = ""
+            self.prev_nounStackOut = ""
+            self.last_view_DON_time = (python_lib_Time.mktime(Date.now().date.timetuple()) * 1000)
+        elif self.view_DON_throttle:
             #  Display changed Data and other values ONLY a few times a second                   ")
             time = (python_lib_Time.mktime(Date.now().date.timetuple()) * 1000)
             if ((time - self.last_view_DON_time) < 0.2):
@@ -3912,20 +3917,12 @@ class forGL_ForGL_Run:
             self.last_view_DON_time = time
         if (0 <= textLine):
             forGL_ForGL_ui.savePos()
-            if (not first_time):
-                forGL_ForGL_ui.goToPos(textLine,7)
-            else:
-                forGL_ForGL_ui.goToPos(textLine,0)
-        _hx_str = self.dataStackToString(dStack)
+            forGL_ForGL_ui.goToPos(textLine,0)
+        _hx_str = ("Data  " + Std.string(self.dataStackToString(dStack)))
         if (_hx_str != self.prev_dataStackOut):
             forGL_ForGL_ui.setOut(2)
-            if (not first_time):
-                forGL_ForGL_ui.msg(_hx_str,forGL_ForGL_ui.DATA_COLOR)
-                forGL_ForGL_ui.eraseToLineEnd((((0 if ((_hx_str is None)) else len(_hx_str))) + 7))
-            else:
-                _hx_str = ("Data  " + Std.string(_hx_str))
-                forGL_ForGL_ui.msg(_hx_str,forGL_ForGL_ui.DATA_COLOR)
-                forGL_ForGL_ui.eraseToLineEnd((0 if ((_hx_str is None)) else len(_hx_str)))
+            forGL_ForGL_ui.msg(_hx_str,forGL_ForGL_ui.DATA_COLOR)
+            forGL_ForGL_ui.eraseToLineEnd(len(_hx_str))
             self.prev_dataStackOut = _hx_str
         if (not self.show_stacks_Data_Only):
             _hx_str = ("Ops   " + Std.string(self.opStackToString(rStack,oStack)))
@@ -3936,7 +3933,7 @@ class forGL_ForGL_Run:
                 else:
                     forGL_ForGL_ui.msg("\n")
                 forGL_ForGL_ui.msg(_hx_str,forGL_ForGL_ui.OP_COLOR)
-                forGL_ForGL_ui.eraseToLineEnd((0 if ((_hx_str is None)) else len(_hx_str)))
+                forGL_ForGL_ui.eraseToLineEnd(len(_hx_str))
                 self.prev_opStackOut = _hx_str
             _hx_str = ("Nouns " + Std.string(self.nounStackToString(rStack,nStack)))
             if (_hx_str != self.prev_nounStackOut):
@@ -3946,7 +3943,7 @@ class forGL_ForGL_Run:
                 else:
                     forGL_ForGL_ui.msg("\n")
                 forGL_ForGL_ui.msg(_hx_str,forGL_ForGL_ui.NOUN_COLOR)
-                forGL_ForGL_ui.eraseToLineEnd((0 if ((_hx_str is None)) else len(_hx_str)))
+                forGL_ForGL_ui.eraseToLineEnd(len(_hx_str))
                 self.prev_nounStackOut = _hx_str
         forGL_ForGL_ui.setOut()
         forGL_ForGL_ui.restorePos()
@@ -4704,7 +4701,7 @@ class forGL_ForGL_Run:
         #  \t\t\tOperator Selection                                                             ")
         #  \t\tOLDEST Operators (within the current Group or Stack Frame) are Run first.       ")
         #  \t\t\tRunning OLDEST first supports Invariant of Operator Order.  BUT ...            ")
-        #        Expressions using ( ) after a Operator enables INFERENCE that a Function style was used.  ")
+        #        Expressions using ( ) after a Operator enables INFERENCE that a Procedural style was used.  ")
         #            After the end ) is hit, this is called with  after_expression  as true.  ")
         #                The NEWEST and not OLDEST Operator and Data are then run.           ")
         #            Think of cos(x).  x  Data value is pushed as Newest Data                ")
@@ -4847,7 +4844,7 @@ class forGL_ForGL_Run:
         try:
             self.start_session_time = (python_lib_Time.mktime(Date.now().date.timetuple()) * 1000)
             self.total_intp_time = 0.0
-            test_def = "3=L. 1.0=p. i=1. while(i<=L){p*i=p.i+1=i}p"
+            test_def = "5 show. show( 7 )"
             verb_display_line = self.run_text_line
             words_saved = 0
             run_result = 0
@@ -5018,7 +5015,7 @@ class forGL_ForGL_Run:
             forGL_ForGL_ui.msg("\r")
             forGL_ForGL_ui.eraseToLineEnd(0)
             if (not self.export_as_code):
-                forGL_ForGL_ui.msg("\rDisplay internal Names when running (y/n) ?  ")
+                forGL_ForGL_ui.msg("\rShow internal Names when running (y/n) ?  ")
                 self.display_internal = forGL_ForGL_ui.enterYes()
                 _hx_local_2 = self
                 _hx_local_3 = _hx_local_2.run_text_line
@@ -5297,6 +5294,7 @@ class forGL_ForGL_Run:
             intp_done = False
             while (not intp_done):
                 #      I N T E R P R E T E R         LOOP                                            ")
+                #                                                                                    ")
                 apply_op = False
                 i1 = 0
                 ip = self.intp_ip
@@ -5534,6 +5532,7 @@ class forGL_ForGL_Run:
                             if (((32 == op_to_do) or ((33 == op_to_do))) or ((34 == op_to_do))):
                                 if (33 == op_to_do):
                                     #   Special Case: We know Assign To has only 1 destination after it.                 ")
+                                    #                                                                                    ")
                                     if (((7 != python_internal_ArrayImpl._get(self.runStack, (ip + 1)).token_type) and ((0 != python_internal_ArrayImpl._get(self.runStack, (ip + 1)).token_type))) and ((6 != python_internal_ArrayImpl._get(self.runStack, (ip + 1)).token_type))):
                                         forGL_ForGL_ui.error("SYNTAX ERROR: Noun or local Noun must follow Assign into. Stopping\n")
                                         _hx_local_105 = self
@@ -5613,9 +5612,8 @@ class forGL_ForGL_Run:
                                     ip = (ip + 1)
                                     continue
                             elif (30 == op_to_do):
-                                result = Math.PI
                                 _this18 = self.dataStack
-                                x9 = forGL_DataItem(11,"",result,0)
+                                x9 = forGL_DataItem(11,"",Math.PI,0)
                                 _this18.append(x9)
                                 _hx_local_118 = self
                                 _hx_local_119 = _hx_local_118.steps_done
@@ -5624,9 +5622,8 @@ class forGL_ForGL_Run:
                                 ip = (ip + 1)
                                 continue
                             elif (31 == op_to_do):
-                                result1 = python_lib_Random.random()
                                 _this19 = self.dataStack
-                                x10 = forGL_DataItem(11,"",result1,0)
+                                x10 = forGL_DataItem(11,"",python_lib_Random.random(),0)
                                 _this19.append(x10)
                                 _hx_local_121 = self
                                 _hx_local_122 = _hx_local_121.steps_done
@@ -6321,6 +6318,7 @@ class forGL_ForGL_Run:
 
     def runInterpreter(self):
         #      I N T E R P R E T E R         LOOP                                            ")
+        #                                                                                    ")
         apply_op = False
         i = 0
         ip = self.intp_ip
@@ -6558,6 +6556,7 @@ class forGL_ForGL_Run:
                     if (((32 == op_to_do) or ((33 == op_to_do))) or ((34 == op_to_do))):
                         if (33 == op_to_do):
                             #   Special Case: We know Assign To has only 1 destination after it.                 ")
+                            #                                                                                    ")
                             if (((7 != python_internal_ArrayImpl._get(self.runStack, (ip + 1)).token_type) and ((0 != python_internal_ArrayImpl._get(self.runStack, (ip + 1)).token_type))) and ((6 != python_internal_ArrayImpl._get(self.runStack, (ip + 1)).token_type))):
                                 forGL_ForGL_ui.error("SYNTAX ERROR: Noun or local Noun must follow Assign into. Stopping\n")
                                 _hx_local_47 = self
@@ -6637,9 +6636,8 @@ class forGL_ForGL_Run:
                             ip = (ip + 1)
                             continue
                     elif (30 == op_to_do):
-                        result = Math.PI
                         _this12 = self.dataStack
-                        x4 = forGL_DataItem(11,"",result,0)
+                        x4 = forGL_DataItem(11,"",Math.PI,0)
                         _this12.append(x4)
                         _hx_local_60 = self
                         _hx_local_61 = _hx_local_60.steps_done
@@ -6648,9 +6646,8 @@ class forGL_ForGL_Run:
                         ip = (ip + 1)
                         continue
                     elif (31 == op_to_do):
-                        result1 = python_lib_Random.random()
                         _this13 = self.dataStack
-                        x5 = forGL_DataItem(11,"",result1,0)
+                        x5 = forGL_DataItem(11,"",python_lib_Random.random(),0)
                         _this13.append(x5)
                         _hx_local_63 = self
                         _hx_local_64 = _hx_local_63.steps_done
