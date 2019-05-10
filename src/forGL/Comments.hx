@@ -110,8 +110,11 @@ class Comments
 		
 		else
 		if ( Context.defined( "python" ) )
-			cmts = [ first ].concat( rest ).map( extract ).map( x -> macro untyped __python__( '#  $x  ' ) );
+			cmts = [ first ].concat( rest ).map( extract ).map( x -> macro python.Syntax.code( '#  {0}  ', x ) );
 
+		else
+		if ( Context.defined( "php" ) )
+			cmts = [ first ].concat( rest ).map( extract ).map( x -> macro php.Syntax.code( '#  {0}  ', x ) );
 		else
 		{
 			// Default already assigned.  
