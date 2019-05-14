@@ -1,8 +1,17 @@
 # forGL
 
-**NEWS :  forGL will be presented at the Haxe US Summit 2019 in Seattle on May 10.**
+# **NEWS :  forGL was presented on May 9 and on May 10**
+# **at the Haxe US Summit 2019 in Seattle.**
 
-**May 10  13:30 - 14:30 forGL: Any Language Does Computer Programming - Randy Maxwell**
+## **May 9  ~ 11:30 ~ 12:30 forGL Introduction - Randy Maxwell**  
+https://www.youtube.com/watch?v=vgcHKTxVPMY&list=PLU2M-shPcj1zZYoaApqDtbl64f1rIJnp5&index=9
+
+## **May 10  15:00 ~ 15:22 forGL Demo & Summary with some Haxe Summary: Computer Programming with your language - Randy Maxwell**  
+https://www.youtube.com/watch?v=zlWQe9VXhBk
+
+
+## **LINKS to Haxe US Summit 2019 Videos**  
+https://community.haxe.org/t/haxe-us-summit-2019-video-links-all-3-days/1727
 
 See Haxe.org for more details about US Summit.
 
