@@ -1,6 +1,6 @@
 # forGL
 
-# **NEWS :  forGL was presented on May 9 and on May 10**
+# **NEWS :  forGL presented 2019 on May 9 and on May 10*
 # **at the Haxe US Summit 2019 in Seattle.**
 
 ## **May 9  ~ 11:30 ~ 12:30 forGL Introduction - Randy Maxwell**  
