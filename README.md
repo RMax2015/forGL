@@ -1,12 +1,18 @@
 # forGL
 
-# **NEWS :  forGL presented 2019 on May 9 and on May 10*
+# Getting Started : Please see Applications folder
+# *forGL will run on platforms with Python 3 or Java installed*
+# *for Testers the Browser folder has files to Debug with.*
+updated April 6, 2020
+
+# **NEWS :  
+# **forGL presented 2019 on May 9 and on May 10**
 # **at the Haxe US Summit 2019 in Seattle.**
 
-## **May 9  ~ 11:30 ~ 12:30 forGL Introduction - Randy Maxwell**  
+## **May 9  ~ 11:30 ~ 12:30 forGL Introduction**  
 https://www.youtube.com/watch?v=vgcHKTxVPMY&list=PLU2M-shPcj1zZYoaApqDtbl64f1rIJnp5&index=9
 
-## **May 10  15:00 ~ 15:22 forGL Demo & Summary with some Haxe Summary: Computer Programming with your language - Randy Maxwell**  
+## **May 10  15:00 ~ 15:22 forGL Demo & Summary with some Haxe Summary: Computer Programming with your language**  
 https://www.youtube.com/watch?v=zlWQe9VXhBk
 
 
