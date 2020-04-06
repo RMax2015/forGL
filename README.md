@@ -1,6 +1,7 @@
 # forGL
 
-# Getting Started : Please see Applications folder
+# Getting Started : Please see Applications folder &
+# _forGL_Getting_Started_READ_ME_NOW.txt above
 # *forGL will run on platforms with Python 3 or Java installed*
 # *for Testers the Browser folder has files to Debug with.*
 updated April 6, 2020
