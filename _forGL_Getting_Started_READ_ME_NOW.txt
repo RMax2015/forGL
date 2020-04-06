@@ -1,6 +1,6 @@
 forGL Getting Started
 
-April 2019
+April 2020
 
     Please consider these directories
 Applications
@@ -43,7 +43,8 @@ directory has sample Windows .bat files I use to:
 Run Haxe transpiler to build all or 1 at a time.
 Run 5 different generated programming languages, all or 1 at a time.
 
-forGL built with Haxe 3.4.x and 4.0 up to 4.0 rc2
+forGL Builds with Haxe 4.0 and up Releases
+forGL was built with Haxe 3.4.x and 4.0 up to 4.0 rc2
 
 forGL currently uses Haxe to generate:
 C++, C#, Java, Python and JavaScript (a Browser Web Worker)
