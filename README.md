@@ -1,19 +1,23 @@
 # forGL
 
+# See the Web site for uses of forGL:
+https://www.forgl.org
+
 # Getting Started : Please see Applications folder &
 # _forGL_Getting_Started_READ_ME_NOW.txt above
 # *forGL will run on platforms with Python 3 or Java installed*
 # *for Testers the Browser folder has files to Debug with.*
-updated April 6, 2020
+updated July 11, 2020
 
-# **NEWS :  
+# **NEWS : 
+
 # **forGL presented 2019 on May 9 and on May 10**
 # **at the Haxe US Summit 2019 in Seattle.**
 
-## **May 9  ~ 11:30 ~ 12:30 forGL Introduction**  
+## **May 9  ~ 11:30 ~ 12:30 forGL Introduction (1 hour)**  
 https://www.youtube.com/watch?v=vgcHKTxVPMY&list=PLU2M-shPcj1zZYoaApqDtbl64f1rIJnp5&index=9
 
-## **May 10  15:00 ~ 15:22 forGL Demo & Summary with some Haxe Summary: Computer Programming with your language**  
+## **May 10  15:00 ~ 15:22 forGL Demo & Summary with some Haxe Summary: Computer Programming with your language (22 min)**  
 https://www.youtube.com/watch?v=zlWQe9VXhBk
 
 
@@ -178,6 +182,9 @@ JavaScript (not really working).
 Very incomplete testing on old Android phone with incomplete JavaScript / HTML / JavaScript Web Worker (from Haxe).
 
 ## Links to forGL
+**Official web site**
+https://www.forgl.org
+
 **Haxe Community** forum (Very helpful members)
 Several references, search for: **4GL** or **forGL**
 
