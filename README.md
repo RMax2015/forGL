@@ -1,19 +1,22 @@
-# forGL
-
-# See the Web site for uses of forGL:
+# forGL web site (expect many changes here soon):
 https://www.forgl.org
-
+# .
 # Getting Started : Please see Applications folder &
 # _forGL_Getting_Started_READ_ME_NOW.txt above
 # *forGL will run on platforms with Python 3 or Java installed*
 # *for Testers the Browser folder has files to Debug with.*
 updated July 11, 2020
-
+# .
 # **NEWS : 
 
+# ! Hope to Speak at Haxe EU Summit 2020 in October !
+# .
+# July 12, 2020 (first public post not on a Haxe related site) 
+# forGL : Explore Language As Programming Code
+https://www.thinkspot.com/feed/single_post?psid=Vnu456
+# .
 # **forGL presented 2019 on May 9 and on May 10**
 # **at the Haxe US Summit 2019 in Seattle.**
-
 ## **May 9  ~ 11:30 ~ 12:30 forGL Introduction (1 hour)**  
 https://www.youtube.com/watch?v=vgcHKTxVPMY&list=PLU2M-shPcj1zZYoaApqDtbl64f1rIJnp5&index=9
 
@@ -24,7 +27,7 @@ https://www.youtube.com/watch?v=zlWQe9VXhBk
 ## **LINKS to Haxe US Summit 2019 Videos**  
 https://community.haxe.org/t/haxe-us-summit-2019-video-links-all-3-days/1727
 
-See Haxe.org for more details about US Summit.
+See Haxe.org for more details about US Summit 2019.
 
 
 
