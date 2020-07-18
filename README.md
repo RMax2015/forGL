@@ -7,9 +7,8 @@ https://www.forgl.org
 # *for Testers the Browser folder has files to Debug with.*
 updated July 11, 2020
 # .
-# **NEWS : 
+# N E W S : 
 
-# ! Hope to Speak at Haxe EU Summit 2020 in October !
 # .
 # July 12, 2020 (first public post not on a Haxe related site) 
 # forGL : Explore Language As Programming Code
