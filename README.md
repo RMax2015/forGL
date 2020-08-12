@@ -1,4 +1,4 @@
-# forGL web site (expect many changes here soon):
+# forGL web site (expect more changes here):
 https://www.forgl.org
 # .
 # Getting Started : Please see Applications folder &
@@ -65,7 +65,7 @@ Other choice words are reserved but not yet working.
 
 Another special type is called **Built In Verbs**.  
 These are Verbs that are always part of a forGL dictionary when it is built in memory.  
-**show, repeat** ...  
+**show, view** ... 
 
 **forGL can run your code at full speed  
 or automatically but with a delay between steps  
@@ -204,4 +204,4 @@ https://haxe.io/roundups/478/
 
 
 
-**... More details will be added soon ...**
+**... forGL awaits ...**
