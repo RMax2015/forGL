@@ -40,6 +40,63 @@ See Haxe.org for more details about US Summit 2019.
 
 
 
+## **forGL . . . L A N G U A G E . . D E S I G N . . I D E A S**
+
+**forGL is what I call now an application that sometimes acts like a programming language.**
+**More details of forGL as an application are found below and by running the app and in the Docs directory.**
+
+**Here is a very brief description of some of the programming language ideas in forGL.**
+**A very flexible Parser/Interpreter was needed to support the variety of 100+ natural languages of Earth.**
+**Support for display of languages other than English is found in various word definitions in provided dictionary .toml files.**
+
+# **Parser**
+**identifies single Tokens.  forGL Dictionary holds the list of known definitions for each "Word".**  
+**forGL Word use is very similar to a Word in a Forth programming language dictionary (math operators and punctuation are also considered to be words).**
+**Forth language contributed 2 key Ideas to forGL:**
+**1) the use of a Dictionary of word Definitions**
+**2) Words in the Dictionary are used to express a given Problem to be solved by a Program in words that closely represent the important concepts of the Problem.**
+
+**The "parts of speech" (upper level "types") of the forGL language are: Nouns, Verbs, Punctuation ( . , : ; ) and Operators (from Mathematics + - * / ^ and some others).  Before the Interpreter starts each Token is searched for in the forGL Dictionary and any Tokens found are marked with the defined forGL type.**
+
+**If a Token is not in the Dictionary then it is checked to see if it is: an Integer OR a Number with Decial digits that sometimes will have a decimal point OR a Number in Scientific Notation OR a Hexadecimal number OR a literal String (these are the common low level types that most computer Hardware directly supports: Integer of the CPU word size 8, 16, 32, 64 bits Signed or Unsigned, Double or Float size for example).**
+
+**If a Token is still not identified it may be what is called a local Noun (a local Variable) within a Verb definition and treated as such.  Local Nouns just exist as passive Tokens until referenced by the forGL Interpreter.  Nouns are like variables in other programming languages which also mostly imitate the idea of a Variable from Algebra mathematics.**
+
+# **Interpreter**
+**implements a lot of the forGL language syntax flexibility.**
+**Interpreter directly supports Prefix, Infix and Postfix notation in almost any combination.**
+**The only combinations of flexible syntax not support are those where forGL is following an existing notation convention.**
+**Examples of fixed notation: (to be added later)**
+
+# **forGL Flexible Syntax Examples**
+**Prefix, Infix and Postfix syntax of Addition that will show 7 as the sum. Haxe Math operators are all supported.**
+
+**+ 5 2 show  (prefix)**
+
+**Prefix notation is popular in programming languages like Lisp and Functual Programming languages.**
+**Prefix notation syntax is perhaps more commonly found as  ( + 5 2 )  where enclosing parenthesis are required.**
+
+**5 + 2 show  (infix)**
+
+**Infix notation is common in many programming languages (as well as Mathematics).**
+**Haxe and all the programming languages that Haxe targets as output use Infix.**
+
+**5 2 + show  (postfix)**
+
+**Postfix notation is frequently used in Concatenative programming languages such as Forth.**
+**Forth language uses Postfix notation for efficiency reasons (less CPU operations needed and less memory needed).**
+
+**Assignment Support for Natural Language Use**
+
+**from & into are used as follows. Both will set x as Integer 42 (result of Multiplication).**
+
+**x from 6 * 7**
+
+**6 * 7 into x**
+
+**from keyword ( also := ) is exactly like Assignment operator '=' found in most programming languages.**
+
+**into keyword ( also =: ) is added to support expressions that are closer to Natural languages.**
 
 ## **forGL . . . F E A T U R E S**
 
