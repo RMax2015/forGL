@@ -31,7 +31,7 @@ import haxe.CallStack;
 using hx.strings.Strings;
 using hx.strings.String8;
 
-// cursor positioning and colored text, needed AnsiCon.exe for Win7 CMD window
+// cursor positioning and colored text, on Windows: needed AnsiCon.exe
 using hx.strings.ansi.Ansi;
 using hx.strings.ansi.AnsiColor;
 // using hx.strings.ansi.AnsiCursor;
@@ -84,8 +84,10 @@ class ForGL_ui
 	public static var out_buffers = new Array<String8>();
 	
 	
-// 		Colors
+// 		Colors  of  Types  of  Words
 //
+	public static var DEFAULT_TYPE_COLOR = WHITE;	// White foreground Text, ASSUMES  BLACK  Background Color
+	
 	public static var COMMENT_COLOR = YELLOW;
 	public static var DATA_COLOR    = RED;
 	public static var NOUN_COLOR    = CYAN;
@@ -93,11 +95,26 @@ class ForGL_ui
 	public static var VERB_COLOR    = BLUE;
 	public static var VERB_BI_COLOR = MAGENTA;
 	
-	public static var DEFAULT_COLOR = WHITE;	// ASSUMES  BLACK  Background Color
 	
+//		Colors  used  in  various  ways
+//
+	public static var DEFAULT_COLOR   = WHITE;		// White foreground Text, ASSUMES  BLACK  Background Color
+
+	public static var SEPARATOR_COLOR = MAGENTA;	// Foreground text color for Line drawing chars
+	
+
+// 		Cursor or Text Position and Content
+//
+//		keep the Cursor position available
 	public static var current_line   = 0;
 	public static var current_column = 0;
-	
+
+//		allow Home position anywhere
+	public static var home_line      = 0;
+	public static var home_column    = 0;
+
+
+	// Used with 80 Character wide text display
 	private static var blanks78 : String =
 		"                                                                              ";
 	
@@ -177,7 +194,7 @@ class ForGL_ui
 							msg_type_str = "verb_output";
 											
 						case VERB_TOK_OUT:
-							msg_type_str = "verb_tokens";
+							msg_type_str = "verb_text";
 							
 						default:
 							msg_type_str = "";
@@ -261,6 +278,13 @@ class ForGL_ui
 				writer.write( Ansi.ESC + line + ";" + column + "H" );
 				current_line   = line;
 				current_column = column;
+				#end
+			}
+			
+			public static function goToHome() : Void
+			{
+				#if !js
+				goToPos( home_line, home_column );
 				#end
 			}
 			
@@ -348,7 +372,9 @@ class ForGL_ui
 	#end
 	}
 	
-	//		Display 
+	
+//		Display
+//
 	public static var status_msgs : String8 = "";
 	
 	public static function status( message : String8, color = WHITE, end_CR = false, wait = false ) : Void
@@ -388,8 +414,8 @@ class ForGL_ui
 
 	#if ( !cs )
 		savePos();
-		goToPos( 1, 20 );
-		eraseToLineEnd( 20 );
+		goToPos( 2, 7 );		// space past the line starts with: forGL 
+		eraseToLineEnd( 0 );
 		if ( show_msg )
 			msg( status_msgs, color, end_CR );
 	#else
@@ -438,7 +464,7 @@ class ForGL_ui
 //
 	public static function getTypeColor( type: NLTypes ) : AnsiColor
 	{
-		var color = ForGL_ui.DEFAULT_COLOR;
+		var color = ForGL_ui.DEFAULT_TYPE_COLOR;
 		
 		#if cs
 			return color;	// so far  NO Color support for C#
@@ -447,7 +473,7 @@ class ForGL_ui
 		switch ( type )
 		{
 			case NL_TYPE_UNKNOWN:
-				color = ForGL_ui.DEFAULT_COLOR;
+				color = ForGL_ui.DEFAULT_TYPE_COLOR;
 				
 			case NL_COMMENT:
 				color = COMMENT_COLOR;
@@ -520,8 +546,36 @@ class ForGL_ui
 		"Running on Windows",
 		"and Font does not have information about glyphs", 
 		"Outline boxes show  ▯▯▯  instead of expected glyphs", "" );
-		user_Verb = stdin.readLine();
 		
+	#if java
+		user_Verb = stdin.readLine();
+	#else
+		while ( true )
+		{
+			var char_code = Sys.getChar( true );	// No ECHO of character to display
+			
+			if ( ( 0x0D == char_code )		// CR or LF ?
+			  || ( 0x0A == char_code ) )
+				break;
+		
+			if ( 0x1B == char_code )		// Escape ?
+			{
+				user_Verb = "";
+				break;
+			}
+			
+			if ( 0x08 == char_code )	// Backspace ?
+			{
+				if ( 0 < user_Verb.length )
+				{
+					user_Verb = Strings.substr8( user_Verb, 0, user_Verb.length - 1 );
+				}
+				continue;
+			}
+			
+			user_Verb += String.fromCharCode( char_code );
+		}
+	#end
 		user_Verb = user_Verb.trim( " \t" );
 		
 		if ( 0 == user_Verb.length )
@@ -560,14 +614,22 @@ class ForGL_ui
 
 // No Java support for getChar
 	#if ( sys )
-		var ans : String8 = stdin.readLine();
-		
-		if ( 0 < ans.length )
+	
+		var ans : String8 = "";
+		while ( 0 == ans.length )
 		{
+			ans = stdin.readLine();
 			ans = ans.trim( " \t" );
-			if ( ( "Y" == ans.charAt8( 0 ) )
-			  || ( "y" == ans.charAt8( 0 ) ) )
-				yes_entered = true;
+		
+			if ( 0 < ans.length )
+			{
+				if ( ( "Y" == ans.charAt8( 0 ) )
+				  || ( "y" == ans.charAt8( 0 ) ) )
+				{
+					yes_entered = true;
+				}
+				break;
+			}
 		}
 	#end
 	
@@ -905,7 +967,7 @@ class ForGL_ui
  * 				A N D  . . .
  * 			JavaScript itself is Interpreted by Browser (and JIT Compiled perhaps)
  * 
- * So Haxe JavaScript (here) is run as a Web Worker (aka native Threads provided by Browser)
+ * So Haxe JavaScript (here) runs on Browser as a Web Worker
  * There is another JavaScript (not Haxe) file that:
  *     Sets up and runs GUI part and loads forGL as Web Worker
  *     Sets up way to Send Commands & Data to forGL and to Receive Results from forGL

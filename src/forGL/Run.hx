@@ -63,6 +63,7 @@ import forGL.UI.ForGL_ui.enterYes        as   enterYes;
 	import forGL.UI.ForGL_ui.hideCursor      as   hideCursor;
 	import forGL.UI.ForGL_ui.savePos         as   savePos;
 	import forGL.UI.ForGL_ui.goToPos         as   goToPos;
+	import forGL.UI.ForGL_ui.goToHome        as   goToHome;
 	import forGL.UI.ForGL_ui.eraseToDispEnd  as   eraseToDispEnd;
 	import forGL.UI.ForGL_ui.restorePos      as   restorePos;
 	import forGL.UI.ForGL_ui.showCursor      as   showCursor;
@@ -128,7 +129,7 @@ class  ForGL_Run
 //
 //	These can be set by init() or by top level code directly
 //
-		public var run_text_line = 0;
+		public var run_text_line = 0;	// which line number where 0 is the top line
 
 // 		Numbers
 /*		
@@ -290,8 +291,29 @@ class  ForGL_Run
 "  Post Conditions:",
 ""
 );
+
+		forgl_version = "v" + forgl_ver_major + "." + forgl_ver_minor + "." + forgl_ver_build + " " + forgl_ver_stability;
 	}
 	
+	
+	// Really simple Version stuff
+	public var forgl_ver_major = "0";
+
+	public var forgl_ver_minor = "0";		//	Increment this when Features are added
+	
+	public var forgl_ver_build = "1";		//	Increment this when a Build is to be distributed
+	
+	
+	public var forgl_ver_stability = "Prototype"; // Prototype, Alpha, Beta, rc01, dev, Release
+		
+	// So above would be  v0.001 Prototype
+	public var forgl_version = "";
+	
+//	public function getVersion() : String8
+//	{
+//		var ret_Ver = "v" + forgl_ver_major + "." + forgl_ver_minor + "." + forgl_ver_build + " " + forgl_ver_stability;
+//		return ret_Ver;
+//	}
 //
 //		Allow high level code to initialize the Runtime setup
 //
@@ -2251,7 +2273,21 @@ error( "\nINTERNAL ERROR:  " + opMeanAsStr( op_to_do ) + " Wrong Operator to use
 		return ret_val;
 	}
 
+	
+	public function procCall( rStack : Array<NLToken>, dStack : Array<DataItem>,
+									oStack : Array<Int>, nStack : Array<Int> )
+	{
+		
+		
+		
+		
+		
+		
+	}
 
+	
+	
+	
 //////////////////////////////////////////////////////////////////////////////
 //
 //
@@ -2289,10 +2325,10 @@ try {
 		
 		// var test_def = "blat = 1024. blat * .25 . show     3   repeat";
 		// var test_def = "blat equals 32. blat times 0x12. show   1000   REPEAT";
-		// var test_def = "a = 2, b = 3, c = 5. a * b * c show";
-		// var test_def = "2 3 5 * * show";
-		// var test_def = "* * 2 3 5 show";
-		// var test_def = "* 2 * 3 5 show";
+		// var test_def = "a = 2, b = 3, c = 5. a + b * c show";
+		// var test_def = "2 3 5 + * show";
+		// var test_def = "+*2 3 5 show";
+		// var test_def = "+ 2 * 3 5 show";
 		// var test_def = "bb = ( 3 * 4 - 6 + 2 ) . bb show";
 		// var test_def = "blat = 10 blat show";
 		// var test_def = "45 radians=x. sin(x)/cos(x) show";
@@ -2509,6 +2545,8 @@ try {
 	
 		if ( 0 < export_as_code_log.length )
 		{
+			comment( "Display the Export info", "" );
+			
 			msg( "\n" );
 			eraseToLineEnd( 0 );
 			msg("#    Export as Code Log\n" );
@@ -2522,11 +2560,21 @@ try {
 			
 			msg( "\n" );
 			
+
+		#if sys
+
+			comment( "", "Create & Write out Export file", "" );
+
 			var expAs = new NLExportAs();
 			
+			var expRet = expAs.init( export_as_code_log );
 			
 			
-		#if sys
+			
+			
+		#else
+		
+			warning( "Please copy/paste the Export info to a file now.", GREEN );
 			
 		#end
 		}
@@ -2670,17 +2718,19 @@ try {
 		{
 			single_step = true;
 			
-			msg( "\rStepping Speed: 0 to 9 (each as .2 sec delay)  OR  any Key for Manual ? " );
+			msg( "\rDelay: your # (times .1 seconds)  OR  any Key for Manual ? " );
 
 			var ans = stdin.readLine();
 			if ( 0 < ans.length )
 			{
-				var char = ans.charAt( 0 );
+				var delay_wanted = Std.parseFloat( ans );
 				
-				if ( ( "0" <= char )	// keyboard 0 to 9 ?  IF 0 then FULL SPEED Animation (see below)
-				  && ( char <= "9" ) )
+				if ( ! Math.isNaN( delay_wanted ) )
 				{
-					delay_seconds_default = ( char.charCodeAt( 0 ) - 0x30 ) / 5.0;
+					if ( delay_wanted < 0 )
+						delay_wanted = 0;
+
+					delay_seconds_default = delay_wanted / 10.0;
 					delay_seconds = delay_seconds_default;
 					eraseToLineEnd( 0 );
 					msg( "\rAutomatic stepping with  " + delay_seconds + "  seconds delay.\n" );
@@ -2778,7 +2828,7 @@ try {
 		repeat_limit_found = false;
 
 
-		var tokens : Array<String8> = nl_Parse.parse( user_Verb, PARSE_EURO );
+		var tokens : Array<String8> = nl_Parse.parse( user_Verb, PARSE_LEFT_TO_RIGHT );
 		run_text_line += nl_Parse.parse_text_lines_added;
 		
 	//	if ( show_details )
@@ -3496,15 +3546,18 @@ error( "\nSYNTAX ERROR: count of " + Std.string( nl_Parse.left_groups ) + " Left
 							{
 								// Assignment is available.  Warn and then try.
 								// INFERENCE
-								var message = "\nSyntax WARNING:  " + name + "  used with no value. ";
-								message += "Punctuation is missing so no assignment.\n";
-								message += "Please add Punctuation.\n";
-								message += "Assignment done anyway to help.\n";
+								var message = "\nInfo:  ";
+								message += name;
+								// message += "  used with no value. ";
+								// message += "Punctuation is missing so no assignment.\n";
+								// message += "Please add Punctuation.\n";
+								// message += "Assignment done anyway to help.\n";
+								message += "  assigned\n";
 								warning( message );
 								run_text_line++;
-								run_text_line++;
-								run_text_line++;
-								run_text_line++;
+								//run_text_line++;
+								//run_text_line++;
+								//run_text_line++;
 								
 								// There was an Assignment to do
 								//opStack.unshift( assignStack.pop() );
@@ -3519,9 +3572,9 @@ error( "\nSYNTAX ERROR: count of " + Std.string( nl_Parse.left_groups ) + " Left
 							{
 								// No Assignment available.  Warn and then try it.
 								// INFERENCE
-								var message = "\nSyntax ERROR:  " + name + "  used with no value. = (assignment) is missing.\n";
+								var message = "\nSyntax Problem:  " + name + "  used with no value. = (assignment) is missing.\n";
 								message += "Or a Verb was spelled wrong and a loop may not end !\n";
-								message += "Please fix spelling OR add = with Punctuation at end.\n";
+								message += "Solution: Please fix spelling OR add = with Punctuation at end.\n";
 								message += "Now trying as local Noun and assignment anyway to help.\n";
 								error( message );
 								run_text_line++;
@@ -4174,7 +4227,7 @@ viewDataOpNouns( runStack, dataStack, opStack, nouns, dataOpNoun_text_line );
 					continue;
 				}
 				
-				var verb_tokens = nl_Parse.parse( verb_text, PARSE_EURO, false );
+				var verb_tokens = nl_Parse.parse( verb_text, PARSE_LEFT_TO_RIGHT, false );
 				
 				if ( 0 == verb_tokens.length )
 				{

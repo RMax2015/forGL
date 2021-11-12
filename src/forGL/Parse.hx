@@ -76,7 +76,7 @@ enum ParseStyle {
 
 	// Top Down, Left to Right, Blank Space (or white space) is a separator
 	// Used for European type languages and 
-    PARSE_EURO;
+    PARSE_LEFT_TO_RIGHT;
 	
 	// Top Down, RIGHT to LEFT, 
     PARSE_RIGHT_TO_LEFT;
@@ -86,11 +86,12 @@ enum ParseStyle {
 
 //
 // Define a class for processing tokens
-// 
+//
+// Used as 1 element in Run stack array
 class NLToken
 {
 	public var visible_token   : String8;	// as seen in UI
-	public var internal_token  : String8;	// as used internally in some cases
+	public var internal_token  : String8;	// as used internally
 	public var token_str       : String8;	// Quoted string or calculated string
 	public var token_float     : Float;		// resolved Float value if Float type
 	public var token_type      : NLTypes;	// type: OP, Verb, Noun, float, int, string
@@ -703,6 +704,7 @@ class  Parse
 
 //		Resolve the Meanings of the Tokens
 //
+	public var resolve_similar_word : String8 = "";
 	public var left_groups  = 0;
 	public var right_groups = 0;
 	public var repeat_verb_found = false;
@@ -712,6 +714,7 @@ class  Parse
 	{
 		comment( "Resolve the Meanings of the Tokens" );
 		var lines_added = 0;
+		resolve_similar_word = "";
 		var append_offset = runStack.length;	// support to have a Verb run from inside current verb
 		
 		left_groups  = 0;
@@ -801,8 +804,10 @@ class  Parse
 								if ( ( 0x59 == char_code )		// Y or y
 								  || ( 0x79 == char_code ) )
 								{
+									comment( "User has selected another SIMILAR Word to run here.", "" );
 									prev_replace = token_lower;
 									token_lower = similarWord;
+									resolve_similar_word = similarWord;
 									token = token_lower;
 									dictIdx = nlDict.findWord( token );
 									newline_needed = true;
