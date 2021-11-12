@@ -74,7 +74,7 @@ class Comments
 //  This approach successfully supports  READABLE  Comments in various Haxe target programming languages.
 
 		if ( Context.defined( "cppia" ) )	// C++ Instructions Assembly extension, set to be empty
-			cmts = [ first ].concat( rest ).map( extract ).map( x -> macro untyped __cppia__( '' ) );
+			cmts = [ first ].concat( rest ).map( extractNoPadding ).map( x -> macro untyped __cppia__( '' ) );
 			
 		else
 		if ( Context.defined( "cpp" ) )		// C++
@@ -90,7 +90,7 @@ class Comments
 
 		else
 		if ( Context.defined( "hl" ) )		// HashLink   set to be empty return
-			cmts = [ first ].concat( rest ).map( extract ).map( x -> macro untyped __hl__( '' ) );
+			cmts = [ first ].concat( rest ).map( extractNoPadding ).map( x -> macro untyped __hl__( '' ) );
 			
 		else
 		if ( Context.defined( "java" ) )
@@ -98,7 +98,7 @@ class Comments
 		
 		else
 		if ( Context.defined( "js" ) )		// JavaScript
-			cmts = [ first ].concat( rest ).map( extract ).map( x -> macro untyped __js__( '//  $x  ' ) );
+			cmts = [ first ].concat( rest ).map( extract ).map( x -> macro js.Syntax.code( '//  $x  ' ) );
 		
 		else
 		if ( Context.defined( "lua" ) )
@@ -106,15 +106,15 @@ class Comments
 
 		else
 		if ( Context.defined( "neko" ) )	// Neko   set to be empty return
-			cmts = [ first ].concat( rest ).map( extract ).map( x -> macro untyped __neko__( '' ) );
+			cmts = [ first ].concat( rest ).map( extractNoPadding ).map( x -> macro untyped __neko__( '' ) );
 		
 		else
-		if ( Context.defined( "python" ) )
-			cmts = [ first ].concat( rest ).map( extract ).map( x -> macro python.Syntax.code( '#  {0}  ', x ) );
+		if ( Context.defined( "python" ) )	// Python
+			cmts = [ first ].concat( rest ).map( extractNoPadding ).map( x -> macro python.Syntax.code( '#  $x' ) );
 
 		else
-		if ( Context.defined( "php" ) )
-			cmts = [ first ].concat( rest ).map( extract ).map( x -> macro php.Syntax.code( '#  {0}  ', x ) );
+		if ( Context.defined( "php" ) )		// PHP
+			cmts = [ first ].concat( rest ).map( extract ).map( x -> macro php.Syntax.code( '#  $x  ' ) );
 		else
 		{
 			// Default already assigned.  
@@ -136,6 +136,20 @@ class Comments
 					temp = temp + str80.substr( 0, str80.length - temp.length );
 				}
 				temp;
-            case _: "not a proper comment";
+            case _: "not a proper Comment";
+        }
+		
+		
+// Check that a simple string is used as input.
+    static function extractNoPadding( e : Expr ) return
+        switch e.expr {
+            case EConst( CString( v ) ): 
+				var temp = v;
+				
+// TODO: Python for example will have 2 extra Blank spaces at end (Right side) that should be trimmed
+
+
+				temp;
+            case _: "not a proper Comment 2";
         }
 }

@@ -1,11 +1,10 @@
 /* ExportAs.hx	 forGL Export selected Verb(s) As other programming languages
  * 
- * Prototype (VERY Experimental) of forGL application
+ * Exporting runtime information including
  * 
- * NOTES:
+ * 		the Dictionary in memory
  * 
- * Exporting from the Dictionary in memory to the Data layer 
- * to allow persistent Dictionary changes.
+ * to allow using the words in your Dictionary as Haxe source file(s).
  * 
  * ...
  * @author Randy Maxwell
@@ -51,7 +50,7 @@ abstract ExportAsTypes(Int) {
 
 
 //
-//		Import support for Dictionaries (or Library Vocabularies?)
+//		Export support for Dictionaries (or Library Vocabularies?)
 //
 class  NLExportAs
 {
@@ -62,14 +61,16 @@ class  NLExportAs
 	}
 
 	
-	public function init() 
+	public function init( expRunMsgs : Array<String8> ) : ReturnMeanings
 	{
+		var retVal = RET_IS_OK;
 		
 		
 		
 		
 		
 		
+		return retVal;
 	}
 	
 	
@@ -87,10 +88,11 @@ class  NLExportAs
 	public var exportAsCode_msgs : String8 = "";
 	
 	public var verbCount = 0;
+
+	public var exportWords_replaced = 0;
+	public var exportWords_added    = 0;
 	
-	//public var 
-	
-/*
+
 	public function exportAsCode( dict : NLDictionary, dict_path_file : String8, data : ForGL_data, ?export_lang = EXPORT_AS_HAXE ) : ReturnMeanings
 	{
 		comment( "", "Export a Verb just run as a programming language.", "" );
@@ -99,12 +101,17 @@ class  NLExportAs
 		
 		exportAsCode_msgs = "";
 		
+		var words_replaced = new Array<Int>();
+		var words_added    = new Array<Int>();
 		
 		
 		exportAsCode_msgs += "Information: " + Std.string( verbCount ) + " Verbs to Export as .\n";
 		
 		if ( 0 == verbCount )
 			return RET_IS_OK;
+		
+		comment( "", "These are words that were Imported earlier.", "" );
+		var imported_words = data.getListOfWords( false );	// These are words that were Imported earlier.
 		
 		if ( 0 == imported_words.length )
 		{
@@ -118,6 +125,9 @@ class  NLExportAs
 			exportAsCode_msgs += "INTERNAL ERROR: Export: No physical Dictionary file available to rename.\n";
 			return RET_IS_INTERNAL_ERROR;
 		}
+		
+		comment( "These are all the words a User has added/changed in the Dictionary" );
+		var out_words = dict.getCustomWords();	// These are all the words a User has added/changed in the Dictionary
 		
 		var str = "Verbs to Export as Code are: " + Std.string( out_words ) + "\n";
 		//msg( str );
@@ -219,6 +229,6 @@ class  NLExportAs
 
 		return result;
 	}
-*/
+
 	
 }

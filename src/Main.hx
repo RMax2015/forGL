@@ -27,26 +27,21 @@ using Sys;
 using hx.strings.Strings;
 // using hx.strings.Char;
 
-
-// THIS HAS A COMPILE ERROR !   details below
-// Edited:  haxe-strings/5,0,0/src/hx/strings/Strings.hx  SEE:  COMMENTED OUT  Randy Maxwell
 using hx.strings.String8;
 
-// COMPILE ERROR !
-// C:\HaxeToolkit\haxe\lib\haxe-strings / 5, 0, 0 / src / hx / strings / Strings.hx:43: characters 32 - 47 : 
-//Class<hx.strings.Pattern> has no field compile
-//
-
 // Cursor positioning and Colored text, needed AnsiCon.exe for Win7 CMD window
-// C++ and Java and Python does Colored text and cursor positioning OK.     C# no.
+// C++ and Python and Java  does Colored text and Cursor Positioning  OK.   C# no.
 using hx.strings.ansi.Ansi;	
 using hx.strings.ansi.AnsiColor;
+
+
 
 //
 //		forGL support
 //
 import forGL.*;
-import forGL.Run.ForGL_Run   as   ForGL_Run;
+import forGL.Run.ForGL_Run		as 				ForGL_Run;
+//import forGL.Run.ForGL_Run.forgl_version   as   forGL_Version;
 
 import forGL.UI.ForGL_ui          as   ForGL_ui;
 import forGL.UI.ForGL_ui.msg      as   msg;
@@ -108,13 +103,15 @@ class Main
 	public static var debug_msgs_js = true;
 	
 	public static function __init__() {
-		untyped __js__( "onmessage = WebWorker.messageHandler" );
+		//untyped __js__( "onmessage = WebWorker.messageHandler" );
+		js.Syntax.code( "onmessage = WebWorker.messageHandler" );
 	}
 	
 	
 	public static function postMessage( message ) 
 	{
-		untyped __js__( "postMessage( message )" );		// Worker to Browser message
+		//untyped __js__( "postMessage( message )" );		// Worker to Browser message
+		js.Syntax.code( "postMessage( message )" );		// Worker to Browser message
 	}
 
 //
@@ -167,7 +164,8 @@ class Main
 					request_details_stack.pop();
 					
 					// Start the Interval that helps with deciding what to do
-					untyped __js__( "window.setInterval( 'doRequestReply', 100 )" );	
+					//untyped __js__( "window.setInterval( 'doRequestReply', 100 )" );
+					js.Syntax.code( "window.setInterval( 'doRequestReply', 100 )" );
 				}
 				
 			case "oscpu":
@@ -224,7 +222,8 @@ class Main
 
 	public static function installOnMessageHandler ()
 	{
-		untyped __js__( "onmessage = WebWorker.messageHandler" );
+		//untyped __js__( "onmessage = WebWorker.messageHandler" );
+		js.Syntax.code( "onmessage = WebWorker.messageHandler" );
 		message_handler_installed = true;
 	}
 	
@@ -340,14 +339,16 @@ class Main
 		
 	#if ( sys && !cs )
 		writer
-			.fg(WHITE)
+			.fg(GREEN)
 			.bg(BLACK)
 			.attr(INTENSITY_BOLD)
 			.clearScreen()
 			.flush();
 	#end
 		
-		msg( "forGL: " );
+		var version = "forGL v0.0.2 Prototype in ";
+		msg( version );
+		
 	#if cpp
 			msg( "C++\n" );
 	#elseif cs
