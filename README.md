@@ -1,14 +1,20 @@
-# forGL web site (expect more changes here):
+# forGL Web Site (expect more changes here):
 https://www.forgl.org
 # .
 # Getting Started : Please see Applications folder &
 # _forGL_Getting_Started_READ_ME_NOW.txt above
 # *forGL will run on platforms with Python 3 or Java installed*
+# .
 # *for Testers the Browser folder has files to Debug with.*
-updated July 11, 2020
+# *testing the Browser build (.js files) is not recommended because*
+# *when new interface to HaxeUI is working there will be a new HTML5 (+js stuff) build*
+updated January 7, 2022
 # .
 # N E W S : 
 
+# .
+# January 7, 2022 (my New Year's Resolution, see 12) 
+https://cult.honeypot.io/reads/developer-new-years-resolutions-for-2022/
 # .
 # July 12, 2020 (first public post not on a Haxe related site) 
 # forGL : Explore Language As Programming Code
@@ -115,7 +121,7 @@ Operators
 Punctuation**
 
 **There are also some special types of words that are provided by forGL to make programming easier.**  
-**Choice** words (the program may choose to change the next statement base on a true or false comparison).  
+**Choice** words (the program may choose to change the next statement based on a true or false comparison).  
 **if, else, while** ...
 
 Other choice words are reserved but not yet working.
@@ -125,7 +131,7 @@ These are Verbs that are always part of a forGL dictionary when it is built in m
 **show, view** ... 
 
 **forGL can run your code at full speed  
-or automatically but with a delay between steps  
+or automatically but with a delay you want between steps  
 or manually under your control**  
 
 **forGL will give you Warnings or Errors and try to provide useful information about why.**  
