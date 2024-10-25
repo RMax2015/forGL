@@ -90,8 +90,9 @@ enum ParseStyle {
 // Used as 1 element in Run stack array
 class NLToken
 {
-	public var visible_token   : String8;	// as seen in UI
 	public var internal_token  : String8;	// as used internally
+	public var visible_token   : String8;	// as seen in UI
+	public var verbose_phrase  : String8;	// verbose expression of meaning
 	public var token_str       : String8;	// Quoted string or calculated string
 	public var token_float     : Float;		// resolved Float value if Float type
 	public var token_type      : NLTypes;	// type: OP, Verb, Noun, float, int, string
@@ -100,9 +101,36 @@ class NLToken
 	public var token_int       : Int;		// resolved Integer value if Int type
 	public var token_op_means  : OpMeanings;	// details of Operand to do
 	
-	public function new() 
+	public function new( internal_word : String8, visible_word : String8,
+						verbose : String8,
+						data_str : String8, data_float : Float,
+						word_type : NLTypes, noun_data : NLTypes, 
+						data_int : Int, op_means : OpMeanings ) 
 	{
+		internal_token  = internal_word;
+		visible_token   = visible_word;
+		verbose_phrase  = verbose;
+		token_str       = data_str;
+		token_float     = data_float;
+		token_type      = word_type;
+		token_noun_data = noun_data;
+		token_int       = data_int;
+		token_op_means  = op_means;
 	}
+
+//	public function new() 
+//	{
+		// Clear & Init  to Unk / Uninitialized
+//		visible_token   = "";
+//		internal_token  = "";
+//		token_str       = "";
+//		token_float     = 0.0;
+//		token_type      = NL_TYPE_UNKNOWN;
+//		token_noun_data = NL_TYPE_UNKNOWN;
+//		token_int       = 0;
+//		token_op_means  = OP_IS_UNKNOWN;
+//	}
+//    Same as  new( "","","",0.0,NL_TYPE_UNKNOWN,NL_TYPE_UNKNOWN,0,OP_IS_UNKNOWN );
 }
 
 	
@@ -129,7 +157,9 @@ class  Parse
 //  Post Conditions
 //      returned array with added strings that represent tokens to resolve later
 //
-	public function strChunk( chunk : String8, prev : Array<String8>, style : ParseStyle, 
+	public function strChunk( chunk : String8, 		// input to Parse
+							prev : Array<String8>,  // previous Parsed input as Array of UTF8 strings
+							style : ParseStyle,     // Going from Left to Right (or Right to Left, not implemented)
 							?verbose : Bool = false ) : Array<String8>
 	{
 		comment( "", "    Helper to do a possibly large amount of a definition", 
@@ -174,9 +204,9 @@ class  Parse
 				//
 				if ( is_prev_num )
 				{
-					// // Number of some kind.  0 to 9
-					if ( ( "0" <= char )
-					  && ( char <= "9" ) )
+					//  Number of some kind.  0 to 9  use char codes here 
+					if ( ( 0x30 <= code )
+					  && ( code <= 0x39 ) )
 					{
 						next += char;
 						prev_char = char;
@@ -340,7 +370,7 @@ class  Parse
 									var char2 = chunk.charAt8( i + 1 );
 									
 									// See if next character is a numeral
-									if ( ( "0" <= char2 ) && ( char2 <= "9" )
+									if ( ( char2.isDigits() )
 									  || ( "." == char2 ) )
 										insert_blanks = false;
 								}
@@ -353,7 +383,7 @@ class  Parse
 									var char2 = chunk.charAt8( i + 1 );
 									
 									// See if next character is a numeral
-									if ( ( "0" <= char2 ) && ( char2 <= "9" ) )
+									if ( char2.isDigits() )
 										insert_blanks = false;
 								}
 					case "/":
@@ -502,6 +532,7 @@ class  Parse
 	}
 
 
+
 // Given a simplified Natural Language text string:
 // Return an array of text tokens that are in correct Natural Language reading order.
 // Also set number of text lines added for any messages shown.
@@ -527,7 +558,12 @@ class  Parse
 
 	try
 	{
-		// Parse step 1 produce list of tokens
+		// Parse step 1 produce a List of tokens 
+		//       (1D Array access semantics)
+		//
+		// Lexer = task of this part of Parsing in most references
+		// I just think mostly what can be easily extracted
+		// 
 		// List will be in natural language reading order
 		var parse_str = in_lang_str;
 		
@@ -728,8 +764,8 @@ class  Parse
 		
 		var dictIdx = -1;
 		
-		var token : String8 = "";
-		var token_lower = "";
+		var token       : String8 = "";
+		var token_lower : String8 = "";
 		
 	try
 	{
@@ -740,7 +776,7 @@ class  Parse
 		var no_replace   : String8 = "";	// Do not replace this
 	#end
 
-		var a_token = new NLToken();
+		var a_token = new NLToken( "","","","",0.0,NL_TYPE_UNKNOWN,NL_TYPE_UNKNOWN,0,OP_IS_UNKNOWN );
 		
 		var runIdx = append_offset;
 		
@@ -879,10 +915,10 @@ class  Parse
 					ri.resolve_op_meaning = OP_IS_BLOCK_END;
 			}
 
-
-			comment( "Set defaults" );
-			a_token.visible_token   = token;
+		comment( "Set defaults" );
 			a_token.internal_token  = token;
+			a_token.visible_token   = token;
+			a_token.verbose_phrase  = token;
 			a_token.token_str       = "";
 			a_token.token_type      = type_found;
 			a_token.token_noun_data = NL_TYPE_UNKNOWN;
@@ -953,16 +989,10 @@ class  Parse
 				repeat_verb_found = true;
 
 			// Allocate and save a new class instance to hold this token's details
-			runStack.push( new NLToken() );
-			
-			runStack[ runIdx ].visible_token   = a_token.visible_token;
-			runStack[ runIdx ].token_type      = a_token.token_type;
-			runStack[ runIdx ].internal_token  = a_token.internal_token;
-			runStack[ runIdx ].token_noun_data = a_token.token_noun_data;
-			runStack[ runIdx ].token_str       = a_token.token_str;
-			runStack[ runIdx ].token_float     = a_token.token_float;
-			runStack[ runIdx ].token_int       = a_token.token_int;
-			runStack[ runIdx ].token_op_means  = a_token.token_op_means;
+			runStack.push( new NLToken( a_token.internal_token, a_token.visible_token, 
+										a_token.verbose_phrase, a_token.token_str, 
+										a_token.token_float, a_token.token_type, a_token.token_noun_data,
+										a_token.token_int, a_token.token_op_means) );
 			
 			prev_internal_token = a_token.internal_token;
 			i++;
@@ -1212,7 +1242,7 @@ public function resolveAssigns( runStack : Array<NLToken> )
 
 							while ( j <= statement_end )
 							{
-								retArray.push( new NLToken() );
+								retArray.push( new NLToken( "","","","",0.0,NL_TYPE_UNKNOWN,NL_TYPE_UNKNOWN,0,OP_IS_UNKNOWN ) );
 								var idx = retArray.length - 1;
 
 								if ( ( j == statement_end )
@@ -1230,7 +1260,7 @@ public function resolveAssigns( runStack : Array<NLToken> )
 									retArray[ idx ].token_int       = 0;
 									retArray[ idx ].token_op_means  = OP_IS_SEMICOLON;
 									
-									retArray.push( new NLToken() );
+									retArray.push( new NLToken( "","","","",0.0,NL_TYPE_UNKNOWN,NL_TYPE_UNKNOWN,0,OP_IS_UNKNOWN ) );
 									idx = retArray.length - 1;
 								}
 								
@@ -1263,7 +1293,7 @@ public function resolveAssigns( runStack : Array<NLToken> )
 							j = assign_pos + 1;
 							while ( j < statement_end )
 							{
-								retArray.push( new NLToken() );
+								retArray.push( new NLToken( "","","","",0.0,NL_TYPE_UNKNOWN,NL_TYPE_UNKNOWN,0,OP_IS_UNKNOWN ) );
 								var idx = retArray.length - 1;
 
 								retArray[ idx ].visible_token   = runStack[ j ].visible_token;
@@ -1279,7 +1309,7 @@ public function resolveAssigns( runStack : Array<NLToken> )
 							}
 							
 							comment( "", "Now do the  Assign From  Operator", "" );
-							retArray.push( new NLToken() );
+							retArray.push( new NLToken( "","","","",0.0,NL_TYPE_UNKNOWN,NL_TYPE_UNKNOWN,0,OP_IS_UNKNOWN ) );
 							var idx = retArray.length - 1;
 
 							retArray[ idx ].visible_token   = opMeanAsStr( OP_IS_ASSIGN_FROM, true );
@@ -1295,7 +1325,7 @@ public function resolveAssigns( runStack : Array<NLToken> )
 							j = statement_start;
 							while ( j < assign_pos )
 							{
-								retArray.push( new NLToken() );
+								retArray.push( new NLToken( "","","","",0.0,NL_TYPE_UNKNOWN,NL_TYPE_UNKNOWN,0,OP_IS_UNKNOWN ) );
 								var idx = retArray.length - 1;
 
 								retArray[ idx ].visible_token   = runStack[ j ].visible_token;
@@ -1311,7 +1341,7 @@ public function resolveAssigns( runStack : Array<NLToken> )
 							}
 							
 							comment( "", "Add the ending Semicolon", "" );
-							retArray.push( new NLToken() );
+							retArray.push( new NLToken( "","","","",0.0,NL_TYPE_UNKNOWN,NL_TYPE_UNKNOWN,0,OP_IS_UNKNOWN ) );
 							var idx = retArray.length - 1;
 
 							retArray[ idx ].visible_token   = opMeanAsStr( OP_IS_SEMICOLON, true );
@@ -1328,7 +1358,7 @@ public function resolveAssigns( runStack : Array<NLToken> )
 								comment( "", "Now do the  Block End  character", "" );
 								added_count++;
 
-								retArray.push( new NLToken() );
+								retArray.push( new NLToken( "","","","",0.0,NL_TYPE_UNKNOWN,NL_TYPE_UNKNOWN,0,OP_IS_UNKNOWN ) );
 								idx = retArray.length - 1;
 								
 								retArray[ idx ].visible_token   = opMeanAsStr( OP_IS_BLOCK_END, true );
@@ -1369,7 +1399,7 @@ public function resolveAssigns( runStack : Array<NLToken> )
 					if ( ( "{" == runStack[ i ].internal_token )
 					  || ( "}" == runStack[ i ].internal_token ) )
 					{
-						retArray.push( new NLToken() );
+						retArray.push( new NLToken( "","","","",0.0,NL_TYPE_UNKNOWN,NL_TYPE_UNKNOWN,0,OP_IS_UNKNOWN ) );
 						var idx = retArray.length - 1;
 
 						retArray[ idx ].visible_token   = runStack[ i ].visible_token;
@@ -1398,7 +1428,7 @@ public function resolveAssigns( runStack : Array<NLToken> )
 						var j = i;
 						while ( j < runStack.length )
 						{
-							retArray.push( new NLToken() );
+							retArray.push( new NLToken( "","","","",0.0,NL_TYPE_UNKNOWN,NL_TYPE_UNKNOWN,0,OP_IS_UNKNOWN ) );
 							var idx = retArray.length - 1;
 
 							retArray[ idx ].visible_token   = runStack[ j ].visible_token;
@@ -1434,7 +1464,7 @@ public function resolveAssigns( runStack : Array<NLToken> )
 				var j = statement_start;
 				while ( j < runStack.length )
 				{
-					retArray.push( new NLToken() );
+					retArray.push( new NLToken( "","","","",0.0,NL_TYPE_UNKNOWN,NL_TYPE_UNKNOWN,0,OP_IS_UNKNOWN ) );
 					var idx = retArray.length - 1;
 
 					retArray[ idx ].visible_token   = runStack[ j ].visible_token;
@@ -1454,7 +1484,7 @@ public function resolveAssigns( runStack : Array<NLToken> )
 			  && ( opMeanAsStr( OP_IS_SEMICOLON, true ) != retArray[ retArray.length - 1 ].internal_token ) )
 			{
 				comment( "Last is a Semicolon if NOT a  Block End  character" );
-				retArray.push( new NLToken() );
+				retArray.push( new NLToken( "","","","",0.0,NL_TYPE_UNKNOWN,NL_TYPE_UNKNOWN,0,OP_IS_UNKNOWN ) );
 				var idx = retArray.length - 1;
 
 				retArray[ idx ].visible_token   = opMeanAsStr( OP_IS_SEMICOLON, true );
@@ -1805,22 +1835,21 @@ public function resolveAssigns( runStack : Array<NLToken> )
 
 		var lines_added = 0;
 		var msg_text = "";
+		var len = runStack.length;
+		if ( 0 < len )
+			return lines_added;
 
-		if ( 0 < runStack.length )
+		msg_text = "\n\t\t\t" + Std.string( len ) + "  Words";
+		if ( show_words )
+			msg( msg_text );
+		if ( text_str )
+			words_table_text = msg_text;
+
+		if ( show_words )
+			lines_added += 2;
+
+		if ( show_index )
 		{
-			var len = runStack.length;
-			
-			msg_text = "\n\t\t\t" + Std.string( len ) + "  Words";
-			if ( show_words )
-				msg( msg_text );
-			if ( text_str )
-				words_table_text = msg_text;
-
-			if ( show_words )
-				lines_added += 2;
-
-			if ( show_index )
-			{
 			msg_text = "  [ 0 to " + Std.string( len - 1 ) + " ]\n";
 			if ( show_words )
 				msg( msg_text );
@@ -1840,9 +1869,9 @@ public function resolveAssigns( runStack : Array<NLToken> )
 				msg( msg_text );
 			if ( text_str )
 				words_table_text += msg_text;
-			}
-			else
-			{
+		}
+		else
+		{
 			msg_text = "\n              Internal           Word     Verb  or  Noun  Details ...\n";
 			if ( show_words )
 				msg( msg_text );
@@ -1856,80 +1885,261 @@ public function resolveAssigns( runStack : Array<NLToken> )
 				msg( msg_text );
 			if ( text_str )
 				words_table_text += msg_text;
-			}
-			if ( show_words )
-				lines_added++;
-			msg_text = "--------------------------------------------------------------------------------";
-			if ( show_words )
-				msg( msg_text );
-			if ( text_str )
-				words_table_text += msg_text + "\n";
-			
-			if ( show_words )
-				lines_added++;
-			var i = 0;
-			while ( i < len )
+		}
+		
+		if ( show_words )
+			lines_added++;
+		msg_text = "--------------------------------------------------------------------------------";
+		if ( show_words )
+			msg( msg_text );
+		if ( text_str )
+			words_table_text += msg_text + "\n";
+		
+		if ( show_words )
+			lines_added++;
+		
+		var used_inference = false;
+	
+//
+// look at each NL token and display as expected
+//
+		var i = 0;
+		while ( i < len )
+		{
+			// Used  TAB characters here.  Looks somewhat OK on Windows 7 Cmd.exe window
+		
+		// Index value column will be first if wanted
+		//
+			if ( show_index )
 			{
-				// Used  TAB characters here.  Looks somewhat OK on Windows 7 Cmd.exe window
-				if ( show_index )
-				{
-					msg_text = "[" + Std.string( i ) + "]\t";
-					if ( show_words )
-						msg( msg_text );
-					if ( text_str )
-						words_table_text += msg_text;
-				}
-
-				var used_inference = false;
-				var type = runStack[i].token_type;
-				if ( NL_TYPE_UNKNOWN == type )
-				{
-					used_inference = true;
-					type = NL_NOUN_LOCAL;			// Allow INFERENCE to show
-				}
-
-				var color = getTypeColor( type );
-
-				// Color visible Name by type
-				msg_text = runStack[i].visible_token  + "\t\t";
-				if ( runStack[i].visible_token.length8() >= 8 )
-					msg_text = runStack[i].visible_token  + "\t";
-
+				msg_text = "[" + Std.string( i ) + "]\t";
 				if ( show_words )
 					msg( msg_text );
 				if ( text_str )
 					words_table_text += msg_text;
+			}
+			
+			used_inference = false;
+			var nl_type    = runStack[i].token_type;
+		
+			if ( NL_TYPE_UNKNOWN == nl_type )
+			{
+				// UNKNOWN type of word is very suspicious here UNLESS
+				// the token here really is a Local Noun.
+				// Make the Inference that UNKNOWN type === Local Noun
+				//
+				// BUT it is wise to think in terms of Pre Conditions, Invariants, Post Conditions
+				// (Design by Contract) if we are thinking about something messy.
+				// 
+				// Local Noun (variable) Pre Conditions:
+				//    runStack[i].visible_token.length8() must be >= 1
+				//    runStack[i].visible_token  must be a name that is valid  (TODO  Valid name spec?)
+				//    runStack[i].visible_token  must NOT already be in the Dictionary as any kind of word
+				//
 				
-				comment( "", "  Internal Name is what Run time logic depends on", "" );
-				msg_text = runStack[i].internal_token + "\t\t";
-				if ( runStack[i].internal_token.length8() >= 8 )
-					msg_text = runStack[i].internal_token + "\t";
+				// TODO  add remaining preconditions
+				// IF pre conditions are not true then give feedback about problem
+				//
+				
+				used_inference = true;
+				nl_type        = NL_NOUN_LOCAL;
+			}
+			
+			var type_color = getTypeColor( nl_type );
+		//
+		// Visible name column
+		//
+		// Color visible Name by type
+			msg_text = runStack[i].visible_token  + "\t\t";
+			if ( runStack[i].visible_token.length8() >= 8 )
+				msg_text = runStack[i].visible_token  + "\t";
 
+			if ( show_words )
+				msg( msg_text, type_color );
+			if ( text_str )
+				words_table_text += msg_text;
+		//
+		// Internal name column
+		//
+		// Color internal Name by type
+			comment( "", "  Internal Name is what Run time logic depends on", "" );
+			msg_text = runStack[i].internal_token + "\t\t";
+			if ( runStack[i].internal_token.length8() >= 8 )
+				msg_text = runStack[i].internal_token + "\t";
+			
+			if ( show_words )
+				msg( msg_text, type_color );
+			if ( text_str )
+				words_table_text += msg_text;
+		
+		//
+		// Column of extra information depending on NL type
+		//
+			var nl_type_text = nlTypeAsStr( nl_type ) + "\t";
+			var nl_type_text_more = "";
+			
+			msg_text = nl_type_text;
+		
+			var type_unknown_error = false;
+			switch ( nl_type )
+			{
+				case NL_TYPE_UNKNOWN:
+					// Getting here indicates that above Unknown check needs more work
+					var err_str : String8 = "INTERNAL LOGIC ERROR: Unknown type not resolved, Name: " + runStack[i].visible_token;
+					if ( 0 < runStack[i].internal_token.length )
+						err_str += " Internal name is " + runStack[i].internal_token ;
+					
+					error( err_str, RED );
+					if ( show_words )
+						msg( msg_text, RED );
+						
+					words_table_text += err_str;
+						
+					type_unknown_error = true;
+
+					
+				case NL_COMMENT:
+					nl_type_text_more = runStack[i].token_str;
+				
+				case NL_OPERATOR:
+					msg_text = opMeanAsStr( runStack[i].token_op_means );
+				
+				// Like a reserved keyword in other programming languages.
+				case NL_VERB_BI:
+										
+				case NL_VERB:
+					nl_type_text_more = " " + runStack[i].token_str;
+					
+				case NL_VERB_RET:
+					
+				case NL_NOUN:
+					
+				case NL_NOUN_LOCAL:
+
+				case NL_STR:
+					nl_type_text_more = " " + runStack[i].token_str;
+					
+				case NL_INT:
+					nl_type_text_more = " " + Std.string( runStack[i].token_int );
+					
+				case NL_BOOL:
+					if ( 1 == runStack[i].token_int )
+						nl_type_text_more = "true";
+					else
+						nl_type_text_more = "false";
+
+				case NL_FLOAT:
+					nl_type_text_more = " " + Std.string( runStack[i].token_float );
+					
+				case NL_PUNCTUATION:
+					
+				case NL_CHOICE:
+
+				// Do NOT have a default: here. Haxe compiler will then complain about missing cases. Nice!
+			
+			}
+			
+			// append Extra info if available
+			if ( 0 < nl_type_text_more.length )
+				msg_text = msg_text + nl_type_text_more;
+			
+			msg_text = msg_text + "\n";
+			lines_added++;
+
+			if ( show_words )
+				msg( msg_text );
+			
+			if ( text_str )
+				words_table_text += msg_text;
+
+			i++;
+
+		}  // end of  WHILE  loop  to textualize the given Run stack
+		
+		return lines_added;
+	}
+	
+	
+/*
+			if ( NL_TYPE_UNKNOWN == type )
+			{
+	//
+	// UNKNOWN type of word is very suspicious here UNLESS
+	// the token here really is a Local Noun.
+	// Make the Inference that UNKNOWN type === Local Noun
+	//
+	// HOW to know IF the Inference is True for this token ? ? ?
+	// (inquiring Developers want to know!)
+	//
+	// At this point there may be no easy answer here.
+	// forGL is structured sometimes along various ideas
+	// "surface" level that can do dictionary lookup and do simple Parsing
+	// "Interpreter running" level that understands things 
+	//    such as Choice words and how Conditions, Loops, etc to move to next statement
+	//
+	// No change to original  runStack[i].token_type
+	//
+				used_inference = true;
+				type = NL_NOUN_LOCAL;		
+			}
+
+			var type_color = getTypeColor( type );
+
+			// Color visible Name by type
+			msg_text = runStack[i].visible_token  + "\t\t";
+			if ( runStack[i].visible_token.length8() >= 8 )
+				msg_text = runStack[i].visible_token  + "\t";
+
+			if ( show_words )
+				msg( msg_text, type_color );
+			if ( text_str )
+				words_table_text += msg_text;
+			
+			comment( "", "  Internal Name is what Run time logic depends on", "" );
+			msg_text = runStack[i].internal_token + "\t\t";
+			if ( runStack[i].internal_token.length8() >= 8 )
+				msg_text = runStack[i].internal_token + "\t";
+
+			if ( show_words )
+				msg( msg_text, type_color );
+			if ( text_str )
+				words_table_text += msg_text;
+
+			if ( NL_OPERATOR == type )
+			{
+				msg_text = opMeanAsStr( runStack[i].token_op_means );
 				if ( show_words )
-					msg( msg_text, color );
+					msg( msg_text, type_color );
+				if ( text_str )
+					words_table_text += msg_text;
+			}
+			else
+			{
+				msg_text = nlTypeAsStr( type ) + "\t";
+				if ( show_words )
+					msg( msg_text, type_color );
+				if ( text_str )
+					words_table_text += msg_text;
+			}
+
+			if ( NL_VERB == type )
+			{
+				msg_text = " " + runStack[i].token_str + "\n";
+				if ( show_words )
+					msg( msg_text );
 				if ( text_str )
 					words_table_text += msg_text;
 
-				if ( NL_OPERATOR == type )
+				if ( show_words )
+					lines_added++;
+			}
+			else
+			if ( ( NL_NOUN       == type )
+			  || ( NL_NOUN_LOCAL == type ) )
+			{
+				if ( NL_STR == runStack[i].token_noun_data )
 				{
-					msg_text = opMeanAsStr( runStack[i].token_op_means );
-					if ( show_words )
-						msg( msg_text, color );
-					if ( text_str )
-						words_table_text += msg_text;
-				}
-				else
-				{
-					msg_text = nlTypeAsStr( type ) + "\t";
-					if ( show_words )
-						msg( msg_text, color );
-					if ( text_str )
-						words_table_text += msg_text;
-				}
-
-				if ( NL_VERB == type )
-				{
-					msg_text = " " + runStack[i].token_str + "\n";
+					msg_text = "\t s: " + runStack[i].token_str + "\n";
 					if ( show_words )
 						msg( msg_text );
 					if ( text_str )
@@ -1939,96 +2149,103 @@ public function resolveAssigns( runStack : Array<NLToken> )
 						lines_added++;
 				}
 				else
-				if ( ( NL_NOUN       == type )
-				  || ( NL_NOUN_LOCAL == type ) )
+				if ( NL_FLOAT == runStack[i].token_noun_data )
 				{
-					if ( NL_STR == runStack[i].token_noun_data )
-					{
-						msg_text = "\t s: " + runStack[i].token_str + "\n";
-						if ( show_words )
-							msg( msg_text );
-						if ( text_str )
-							words_table_text += msg_text;
-
-						if ( show_words )
-							lines_added++;
-					}
-					else
-					if ( NL_FLOAT == runStack[i].token_noun_data )
-					{
-						msg_text = "\t " + Std.string( runStack[i].token_float ) + "\n";
-						if ( show_words )
-							msg( msg_text );
-						if ( text_str )
-							words_table_text += msg_text;
-
-						if ( show_words )
-							lines_added++;
-					}
-					else
-					{
-						if ( NL_BOOL == runStack[i].token_noun_data )
-						{
-							if ( 1 == runStack[i].token_int )
-								msg_text = "\t true\n";
-							else
-								msg_text = "\t false\n";
-
-							if ( show_words )
-								msg( msg_text );
-							if ( text_str )
-								words_table_text += msg_text;
-						}
-						else
-						if ( NL_INT == runStack[i].token_noun_data )
-						{
-							msg_text = "\t " + Std.string( runStack[i].token_int ) + "\n";
-							if ( show_words )
-								msg( msg_text );
-							if ( text_str )
-								words_table_text += msg_text;
-						}
-						else
-						{
-							if ( used_inference )
-							{
-								if ( show_words )
-									msg( "\n" );
-								if ( text_str )
-									words_table_text += "\n";
-							}
-							else
-							error( "INTERNAL ERROR: wrong token_noun_data value " + Std.string( cast( runStack[i].token_noun_data, Int ) ), RED );
-						}
-						
-						if ( show_words )
-							lines_added++;
-					}
-				}
-				else
-				{
+					msg_text = "\t " + Std.string( runStack[i].token_float ) + "\n";
 					if ( show_words )
-						msg( "\n" );
+						msg( msg_text );
 					if ( text_str )
-						words_table_text += "\n";
+						words_table_text += msg_text;
 
 					if ( show_words )
 						lines_added++;
 				}
-				
-				i++;
+				else
+				{
+					if ( NL_BOOL == runStack[i].token_noun_data )
+					{
+						if ( 1 == runStack[i].token_int )
+							msg_text = "\t true\n";
+						else
+							msg_text = "\t false\n";
+
+						if ( show_words )
+							msg( msg_text );
+						if ( text_str )
+							words_table_text += msg_text;
+					}
+					else
+					if ( NL_INT == runStack[i].token_noun_data )
+					{
+						msg_text = "\t " + Std.string( runStack[i].token_int ) + "\n";
+						if ( show_words )
+							msg( msg_text );
+						if ( text_str )
+							words_table_text += msg_text;
+					}
+					else
+					{
+						if ( used_inference )
+						{
+							if ( show_words )
+								msg( "\n" );
+							if ( text_str )
+								words_table_text += "\n";
+						}
+						else
+						{
+							// Check for Punctuation
+							var op_to_do = runStack[ i ].token_op_means;
+							
+							if ( ( OP_IS_PERIOD    == op_to_do )
+							  || ( OP_IS_COMMA     == op_to_do )
+							  || ( OP_IS_COLON     == op_to_do )
+							  || ( OP_IS_SEMICOLON == op_to_do ) )
+							{
+								// Display the meaning of Punctuation
+								msg_text = opMeanAsStr( runStack[i].token_op_means );
+								if ( show_words )
+									msg( msg_text, type_color );
+								if ( text_str )
+									words_table_text += msg_text;
+							}
+							else
+							{
+								var err_str : String8 = "INTERNAL LOGIC ERROR: token_noun_data value " + Std.string( cast( runStack[i].token_noun_data, Int ) );
+								if ( 0 < runStack[i].internal_token.length  )
+									err_str = err_str + " token name is " + runStack[i].internal_token ;
+								
+								error( err_str, RED );
+								words_table_text += err_str;
+							}
+						}
+					}
+					
+					if ( show_words )
+						lines_added++;
+				}
 			}
+			else
+			{
+				if ( show_words )
+					msg( "\n" );
+				if ( text_str )
+					words_table_text += "\n";
+
+				if ( show_words )
+					lines_added++;
+			}
+
+			i++;
 		}
-		
-	#if debug
+
 	
-	
-	
-	#end
-		
-		return lines_added;
-	}
-	
+#if debug
+
+
+#end
+
+*/
 	
 	
 	public function cleanUp()
