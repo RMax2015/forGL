@@ -25,7 +25,7 @@ import  forGL.Comments.comment    as    comment;
 
 //     Types of tokens found from simple parsing of Natural Language text
 
-@:enum
+enum
 abstract NLTypes(Int) {
 
 	var NL_TYPE_UNKNOWN = 0;
@@ -63,8 +63,11 @@ abstract NLTypes(Int) {
 //	var nl_int64  = ?;			// a signed 64 bit integer. Can be default Int size for Java or 64 bit C++ compiles.
 	var NL_FLOAT = 11;			// a 64 bit floating point number. Haxe also has 32 bit Single on some platforms
 
+// Punctuation
+	var NL_PUNCTUATION = 12;	// . , ; :
+	
 // Choose WHAT to do next
-	var NL_CHOICE = 12;			// if ... else, for, while, do ... while, switch ... case default, break, continue, return
+	var NL_CHOICE = 13;			// if ... else, for, while, do ... while, switch ... case default, break, continue, return
 								// typical flow control keywords, maybe use as Operators if easier to do later
 
 }
@@ -107,6 +110,16 @@ class ResolveInfo
 
 class  NLTypeAs
 {
+// See if a given type is a Data type that is OK to push on Data stack
+//
+	public static function nlTypeIsData( nl_type : NLTypes ) : Bool
+	{
+		var retVal = false;
+		
+		
+		return retVal;
+	}
+
 // Helper to return a readable string of NL types
 //
 	public static function nlTypeAsStr( nl_type : NLTypes ) : String
@@ -160,7 +173,10 @@ class  NLTypeAs
 
 			case NL_FLOAT:
 				ret_str = "Float";
-				
+			
+			case NL_PUNCTUATION:
+				ret_str = "Punctuation";
+			
 			case NL_CHOICE:
 				ret_str = "Choice";
 		
