@@ -17,6 +17,10 @@ using hx.strings.Strings;
 using hx.strings.String8;
 using hx.strings.ansi.AnsiColor;
 
+// added to support Parsing inside  SHOW  Dictionary
+using forGL.Parse.Parse;
+using forGL.Parse.NLToken;
+
 using forGL.NLTypes;
 import forGL.NLTypes.NLTypeAs.nlTypeAsStr           as  nlTypeAsStr;
 
@@ -51,41 +55,6 @@ using forGL.Dictionary.NLDictionary;
 
 
 //
-// Define a class for Dictionary Words   Similar to NLToken elsewhere
-// 
-class DictWord
-{
-	public var internal_token  : String8;	// as used internally (lower case)
-	public var visible_token   : String8;	// as seen in UI
-	
-	public var token_str       : String8;	// Quoted string
-	
-	public var token_float     : Float;		// resolved Float value if Float type
-	public var token_type      : NLTypes;	// type: OP, Verb, Noun
-	public var token_noun_data : NLTypes;   // token_type is Noun or Noun Local, 
-											//   this is type of the Noun's data (string or int or float)
-	public var token_int       : Int;		// resolved Integer value if Int type
-	public var token_op_means  : OpMeanings;	// details of Operand to do
-	
-	public function new( internal_word : String8, visible_word : String8,
-						data_str : String8, data_float : Float,
-						word_type : NLTypes, noun_data : NLTypes, 
-						data_int : Int, op_means : OpMeanings ) 
-	{
-		internal_token  = internal_word;
-		visible_token   = visible_word;
-		token_str       = data_str;
-		token_float     = data_float;
-		token_type      = word_type;
-		token_noun_data = noun_data;
-		token_int       = data_int;
-		token_op_means  = op_means;
-	}
-}
-
-
-
-//
 //		Dictionary support as structures in memory
 //
 class  NLDictionary
@@ -99,8 +68,9 @@ class  NLDictionary
 	
 	public var use_Built_In_Dictionary = false;
 	
-	
-	public var unique_Dictionary_Words = new Array<DictWord>();
+//
+//		USE SAME Struct/Class container as Run time
+	public var unique_Dictionary_Words = new Array<NLToken>();
 	
 
 // Initialize everything needed for a given Dictionary
@@ -255,6 +225,9 @@ class  NLDictionary
 			return 1;
 	#end
 		
+		// show Dictionary name and word count
+		// (example)
+		// ../../forGL_Dictionary_Prototype.toml has 99 Words
 		var message = " has " + Std.string( unique_Dictionary_Words.length ) + " Words";
 		if ( words_added_by_init == unique_Dictionary_Words.length )
 			message = "Dictionary (built in)" + message;
@@ -263,10 +236,16 @@ class  NLDictionary
 		
 		if ( skip_operators )
 			message += ", skipping Operators";
+		
 		message += "\n";
-		msg( message, GREEN );
 		lines_added++;
 
+		// show Column names
+		message += "Visible ------- Internal ------ Meaning ---------------\n";
+		lines_added++;
+		
+		msg( message, GREEN );
+		
 		var color = WHITE;
 		var word_type = NL_TYPE_UNKNOWN;
 		var visible_word  : String8 = "";
@@ -293,17 +272,20 @@ class  NLDictionary
 //				internal_word = Utf8_to_OEM.oemStr( internal_word );
 //			}
 			
+		// Visible word
 			color = getTypeColor( word_type );
 			if ( 7 < visible_word.length8() )
 				msg( visible_word + "\t", color );
 			else
 				msg( visible_word + "\t\t", color );
 			
+		// Internal word
 			if ( 7 < internal_word.length8() )
 				msg( internal_word + "\t" );
 			else
 				msg( internal_word + "\t\t" );
 
+		// Meaning
 			if ( NL_OPERATOR == word_type )
 				msg( opMeanAsStr( unique_Dictionary_Words[ j ].token_op_means ) + "\n", color );
 			else
@@ -337,6 +319,15 @@ class  NLDictionary
 				if ( NL_VERB == word_type )
 				{
 					msg( string_data + "\n" );
+					
+				// TODO:  Try to show the Verb as correctly colored tokens
+				//		best way MAY be to refactor the 
+				//		calling context to be AFTER a Dictionary is fully resolved and ready to run Verbs
+				// 		the current calling context is BEFORE where less info is available
+				//		see code in Run.hx after ~ line 4150  CHECK FOR VERB
+				//	var nl_Parse : Parse;
+				//	var verb_tokens = nl_Parse.parse( string_data, PARSE_LEFT_TO_RIGHT, false );
+
 				}
 				else
 				if ( NL_VERB_BI  == word_type )
@@ -517,7 +508,7 @@ class  NLDictionary
 			// This does Exact (case sensitive) match
 			if ( str.charAt8( i ) == str2.charAt8( i ) )
 			{
-				prefixNew += str.charAt8( i );
+				prefixNew = prefixNew.insertAt( prefixNew.length8(), str.charAt8( i ) );
 			}
 			else
 				break;
@@ -556,7 +547,7 @@ class  NLDictionary
 			// Go from END of strings
 			if ( str.charAt8( index ) == str2.charAt8( index2 ) )
 			{
-				suffixNew = str.charAt8( index ) + suffixNew;
+				suffixNew = suffixNew.insertAt( 0, str.charAt8( index ) );
 				index--;
 				index2--;
 			}
@@ -709,6 +700,7 @@ class  NLDictionary
 		}
 		
 		name_internal = Strings.toLowerCase8( name_internal );
+		var verbose_phrase = word_name;
 		
 		if ( 0 <= replaceIdx )
 		{
@@ -717,6 +709,7 @@ class  NLDictionary
 			
 			unique_Dictionary_Words[ replaceIdx ].internal_token  = name_internal;
 			unique_Dictionary_Words[ replaceIdx ].visible_token   = word_name;
+			unique_Dictionary_Words[ replaceIdx ].verbose_phrase  = verbose_phrase;
 			unique_Dictionary_Words[ replaceIdx ].token_str       = data_str;
 			unique_Dictionary_Words[ replaceIdx ].token_float     = data_float;
 			unique_Dictionary_Words[ replaceIdx ].token_type      = word_type;
@@ -739,7 +732,8 @@ class  NLDictionary
 			// TODO  Insert new Word Sorted by internal name
 			
 			//  for now  insert at end of array
-			unique_Dictionary_Words.push( new DictWord( name_internal, word_name,
+			unique_Dictionary_Words.push( new NLToken( name_internal, word_name,
+											verbose_phrase,
 											data_str, data_float, word_type, 
 											noun_data, data_int, op_means ) );
 		}
@@ -798,7 +792,7 @@ class  NLDictionary
 	{
 		var ret_val = RET_IS_OK;
 		
-		unique_Dictionary_Words = [ new DictWord( ".", ".",
+		unique_Dictionary_Words = [ new NLToken( ".", ".", ".",
 										"", 0.0, NL_TYPE_UNKNOWN, 
 										NL_TYPE_UNKNOWN, 0, OP_IS_UNKNOWN ) ];
 		
