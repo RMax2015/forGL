@@ -17,11 +17,23 @@ using hx.strings.String8;
 import  forGL.Comments.comment    as    comment;
 
 //    List of Operator Meanings
+// 
+// Some notes here for FUTURE improvements
+//
+// Overall GOAL is to do as much compatibility with Haxe supported features
+// and also provide other language Features as well.
+//
+// References:
+// Haxe operators and differences from C based languages (C++, Java, PHP, JavaScript, ...)
+// https://haxe.org/manual/expression-operators-precedence.html
+//
+// short discussion of various C++ operators with simple examples
+// https://www.cplusplus.com/doc/tutorial/operators/
 //
 // It is OK if there are gaps in the integer values used.
 // However, somewhat (very slightly?) better performance may be found if below has NO gaps. 
 //     Needs comparison timing tests.
-@:enum
+enum
 abstract OpMeanings(Int) {
 
 	var OP_IS_UNKNOWN        = 0;
@@ -40,12 +52,26 @@ abstract OpMeanings(Int) {
 	var OP_IS_POW			 = 9;
 	
 	// Comparison				(these need 2 Data items)
+	//							( ==, !=, <, <=, >, >= )
 	var OP_IS_EQUAL			 = 10;
 	var OP_IS_NOT_EQUAL		 = 11;
 	var OP_IS_LESS_THAN		 = 12;
 	var OP_IS_LESS_OR_EQUAL	 = 13;
 	var OP_IS_GREATER_THAN	 = 14;
 	var OP_IS_GREATER_OR_EQUAL = 15;
+
+	
+// Possible Future improvement.  As of now use an  if  keyword instead.
+// 
+// Conditional ternary operator ( ? )
+// a>b ? a : b
+// 
+
+//
+//  FUTURE improvement  Logical operators
+//  ( !, &&, || )
+//  example from C++ but most languages have these
+//
 	
 	// Grouping					(grouping must have both a Left and Right side Operator)
 	var OP_IS_PAREN_LEFT       = 16;		// Parens ( ) enclose an Expression OR as a call type argument list
@@ -69,12 +95,20 @@ abstract OpMeanings(Int) {
 	var OP_IS_PI             = 30;
 	var OP_IS_RANDOM         = 31;
 	
-	// Noun change
+	// Noun change				
+	//							(requires a local or global Noun AND other value from Data stack or expression)
 	var OP_IS_ASSIGNMENT     = 32;	// direction of Assignment determined later =
 	var OP_IS_ASSIGN_TO      = 33;	// direction of Assignment  TO  the RIGHT   =:	 : represents the Destination side
-	var OP_IS_ASSIGN_FROM    = 34;	// direction of Assignment FROM the RIGHT   :=
+	var OP_IS_ASSIGN_FROM    = 34;	// direction of Assignment FROM the RIGHT   :=   this is the assignment of most programming languages 
 	var OP_IS_DECREMENT      = 35;  // Noun or Local Noun is Integer or Float OR String can be made Integer or Float subtract 1 and assign
 	var OP_IS_INCREMENT      = 36;  // as for decrement but add 1 and assign
+
+//
+//  FUTURE improvement  Compound assignment
+//  (+=, -=, *=, /=, %=, >>=, <<=, &=, ^=, |=) 
+//  example from C++ but most languages have these
+// 
+	
 	
 	// Punctuation
 	var OP_IS_PERIOD         = 45;
@@ -104,10 +138,17 @@ abstract OpMeanings(Int) {
 	var OP_IS_FLOOR          = 64;
 	var OP_IS_CEIL           = 65;		// IF ANY HIGHER VALUES ARE ADDED UPDATE OpMeaningsValLimits BELOW ! ! !
 
+//
+// Precedence of operators
+//
+// GOAL is to try to follow most languages approach (C++ as example with ALL of the complexity) 
+// 
+// Implemented elsewhere in other modules. MAY have a flag to control / override behavior in some cases.
+//
 }
 
 
-@:enum
+enum
 abstract OpMeaningsValLimits(Int) {
 	var OP_IS_LOWEST_VAL     = 0;   // = cast( OP_IS_UNKNOWN, Int ); Inline variable initialization must be a constant value
 
@@ -128,7 +169,7 @@ abstract OpMeaningsValLimits(Int) {
 //	Positive means that some Verb or Operator or something 
 //		can not go farther now but other words can be run
 //
-@:enum
+enum
 abstract ReturnMeanings(Int) {
 
 // ERRORS about runtime code Defects
