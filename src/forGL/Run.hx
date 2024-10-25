@@ -89,7 +89,8 @@ import forGL.Meanings.MeansWhat.returnMeanAsStr  as  returnMeanAsStr;
 
 import forGL.data.Data;
 
-using   forGL.Dictionary.DictWord;
+// using   forGL.Dictionary.DictWord;  being replaced by NLToken
+
 import  forGL.Dictionary.NLDictionary;
 
 import forGL.NLImport.NLImport    as  NLImport;
@@ -104,14 +105,14 @@ using forGL.Run.ForGL_Run;
 
 
 //
-// Define a class for the Data stack
+// Define a class for a  Data stack  entry
 // 
 class DataItem
 {
-	public var data_str       : String8;	// Quoted string or calculated string
 	public var data_float     : Float;		// resolved Float value if Float type
 	public var data_type      : NLTypes;   	// String, Float or Int
 	public var data_int       : Int;		// resolved Integer value or Bool if Int type
+	public var data_str       : String8;	// Quoted string or calculated string
 	
 	public function new( type : NLTypes, str: String8, float : Float, int : Int ) 
 	{
@@ -119,6 +120,33 @@ class DataItem
 		data_str   = str;
 		data_float = float;
 		data_int   = int;
+	}
+	
+	public function toStr( ) : String8 
+	{
+		var ret_val : String8 = data_str;
+		
+		if ( NL_FLOAT == data_type )
+			ret_val = Std.string( data_float );
+			
+		if ( NL_INT == data_type )
+			ret_val = Std.string( data_int );
+			
+		return ret_val;
+	}
+}
+
+
+// Better way to Export code as Text ?  include Type info
+class TypedTokens
+{
+	public var token_type      : NLTypes;	// may be Unknown for Local Nouns
+	public var token_name      : String8;	// name was already found in Dict if Not Unknown
+	
+	public function new( type : NLTypes, name: String8 ) 
+	{
+		token_type = type;
+		token_name = name;
 	}
 }
 
@@ -170,7 +198,10 @@ class  ForGL_Run
 //		Export the test Verb and anything it uses as Code in a programming language
 //
 	public var export_as_code = false;
-	public var export_as_code_log = new Array<String8>();
+	
+	// Array of structs. Each is a Type and a token (as String8)
+	public var export_as_code_log = new Array<TypedTokens>();
+	
 	public var export_as_code_verb_name = "";
 
 //	Set to true if User wants to see a little of how forGL works with internal names
@@ -197,6 +228,7 @@ class  ForGL_Run
 	
 	public var delay_seconds = 1.0;  // 2.0; for readable animation
 
+	public var nlDict : NLDictionary;
 //
 //  	PRIVATE
 //
@@ -207,7 +239,7 @@ class  ForGL_Run
 	private var run_verbose = false;
 	
 	private var ForGLData : ForGL_data;
-	private var nlDict : NLDictionary;
+	
 	
 	private var nl_Import_used = false;
 	private var nl_Import : NLImport;
@@ -301,12 +333,12 @@ class  ForGL_Run
 
 	public var forgl_ver_minor = "0";		//	Increment this when Features are added
 	
-	public var forgl_ver_build = "1";		//	Increment this when a Build is to be distributed
+	public var forgl_ver_build = "3";		//	Increment this if a build with Fix(es) after .0 version is available
 	
 	
 	public var forgl_ver_stability = "Prototype"; // Prototype, Alpha, Beta, rc01, dev, Release
 		
-	// So above would be  v0.001 Prototype
+	// So above would be  v0.003 Prototype
 	public var forgl_version = "";
 	
 //	public function getVersion() : String8
@@ -327,6 +359,8 @@ class  ForGL_Run
 		run_verbose = verbose;
 
 /*
+ * 		Test display of some data values
+ * 
  * 			COMMENTED OUT  see above where the variables are declared for details
  * 
 		msg( "Max Integer    = " + Std.string( MAX_INT )  + "\t\tMin Integer    = " + Std.string( MIN_INT ) + "\n" );
@@ -703,6 +737,7 @@ class  ForGL_Run
 	private var prev_dataStackOut : String8 = "";
 	private var prev_opStackOut   : String8 = "";
 	private var prev_nounStackOut : String8 = "";
+	private var prev_callStackOut : String8 = "";
 
 	public function dataStackOut( dStack: Array<DataItem> ) : Int
 	{
@@ -766,7 +801,9 @@ class  ForGL_Run
 			last_view_DON_time = time;
 		}
 		
-	#if ( !cs && !js )		// so far  C# does NOT support text Cursor Positioning
+		var color = ForGL_ui.DEFAULT_COLOR;
+		
+	#if ( !cs && !js )		// so far  C# does NOT support color / text Cursor Positioning
 		if ( 0 <= textLine )
 		{
 			savePos();
@@ -777,7 +814,13 @@ class  ForGL_Run
 		if ( str != prev_dataStackOut )
 		{
 			setOut( DATA_STACK_OUT );
-			msg( str, DATA_COLOR );
+			
+			// be consistent and use same color User wants
+			// msg( str, DATA_COLOR );
+
+			color = getTypeColor( NL_STR );
+			msg( str, color );
+			
 			eraseToLineEnd( str.length );
 			prev_dataStackOut = str;
 		}
@@ -800,7 +843,11 @@ class  ForGL_Run
 					msg( "\n" );
 			#end
 			
-				msg( str, OP_COLOR );
+				// be consistent and use same color User wants
+				// msg( str, OP_COLOR );
+
+				color = getTypeColor( NL_OPERATOR );
+				msg( str, color );
 
 			#if !js
 				eraseToLineEnd( str.length );
@@ -825,7 +872,12 @@ class  ForGL_Run
 					msg( "\n" );
 			#end
 			
-				msg( str, NOUN_COLOR );
+				// be consistent and use same color User wants
+				// msg( str, NOUN_COLOR );
+				
+				color = getTypeColor( NL_NOUN_LOCAL );
+				msg( str + " ", color );
+
 				
 			#if !js
 				eraseToLineEnd( str.length );
@@ -1029,9 +1081,8 @@ class  ForGL_Run
 			}
 
 		/*
-		 * This was done very early when working towards Export As Code
-		 * likely not needed after EaC is functional.
-		 * 
+		 * Runtime composition of statements in ~ infix style
+		 */
 			if ( export_as_code )
 			{
 				comment( "", "Use Noun Name if available for Exported Code log", "" );
@@ -1040,9 +1091,8 @@ class  ForGL_Run
 					exp_str = data1_name;
 				
 				comment( "", "use typical  =  as Assignment operator", "" );
-				export_as_code_log.push( rStack[ nounIdx ].visible_token + " = " + exp_str );
+				export_as_code_log.push( new TypedTokens( rStack[ nounIdx ].token_type, rStack[ nounIdx ].visible_token + " = " + exp_str ) );
 			}
-		*/
 			
 			// This consumes the Data so remove it
 			if ( data_type_OK )
@@ -1106,6 +1156,215 @@ class  ForGL_Run
 		return str;
 	}
 
+//		add a string to Array of strings if not found
+	private function addName( str_array : Array<String8>, name : String8 ) : Void
+	{
+		var found = false;
+
+		var search_name = Strings.toLowerCase8( name );
+
+		var i = 0;
+		while ( i < str_array.length )
+		{
+			if ( search_name == Strings.toLowerCase8( str_array[ i ] ) )
+			{
+				found = true;
+				break;
+			}
+
+			i++;
+		}
+		
+		if ( !found )
+		{
+			str_array.push( name );
+		}
+		
+	}
+
+
+// Parse forward through Arg list or possible Data and put on stacks
+//
+	private var argsOrData_list : Array<String8>;
+
+
+// return a string of Args parsed out
+//
+	private function argsOrData_Str( ) : String8 
+	{
+		return arrToStrSep( argsOrData_list, " " );
+	}
+
+
+// Return a blank space (default) separated string from array
+//
+	private function arrToStrSep( str_array : Array<String8>, ? separator : String8 = " " ) : String8 
+	{
+		var ret_Str : String8 = "";
+		
+		var i = 0;
+		while ( i < str_array.length )
+		{
+			// ret_Str += str_array[ i ];
+			ret_Str = ret_Str.insertAt( ret_Str.length8(), str_array[ i ] );
+			i++;
+			
+			if ( i < str_array.length )
+			{
+				// ret_Str += separator;
+				ret_Str = ret_Str.insertAt( ret_Str.length8(), separator );
+			}
+		}
+		
+		return ret_Str;
+	}
+
+	
+// Implements very simple LOOK AHEAD locally for Run time part of parser
+//
+	private function argsOrData( start : Int, 
+								rStack : Array<NLToken>, 
+								dStack : Array<DataItem>, 
+								oStack : Array<Int> ) : Int
+	{
+		// Empty previous list
+		while ( 0 < argsOrData_list.length )
+			argsOrData_list.pop();
+		
+		var doing_args  = false;
+		var idx = start;
+	
+		// LOOK AHEAD
+		//    Algebra style Call  y = f ( x )
+		//
+		// Does Arg list follow Verb f ?  f ( x )
+		//    look for Opening Paren (      ^ 
+		// IF so then get next token          ^   x as example here
+		//
+		if ( ( idx + 2 ) <= rStack.length )
+		{
+			// Is it  (
+			//
+			if ( ( NL_OPERATOR            == rStack[ idx ].token_type )
+			  && ( OP_IS_EXPRESSION_START == rStack[ idx ].token_op_means ) )
+			{
+				idx++;
+				doing_args = true;
+			}
+		}
+		
+		
+		while ( idx < rStack.length )
+		{
+			var handled = false;
+		
+		// Add to Data or other stacks and keep going until ending ) is found
+		//
+			if ( ( NL_NOUN       == rStack[ idx ].token_type )
+			  || ( NL_NOUN_LOCAL == rStack[ idx ].token_type ) )
+			{
+			dStack.push( new DataItem( rStack[ idx ].token_noun_data, 
+										rStack[ idx ].token_str,
+										rStack[ idx ].token_float,
+										rStack[ idx ].token_int ) );
+				handled = true;
+			}
+			
+			if ( NL_STR == rStack[ idx ].token_type )
+			{
+			dStack.push( new DataItem( NL_STR, 
+										rStack[ idx ].token_str,
+										0.0,
+										0 ) );
+				handled = true;
+			}
+			
+			if ( NL_FLOAT == rStack[ idx ].token_type )
+			{
+			dStack.push( new DataItem( NL_FLOAT, 
+										"",
+										rStack[ idx ].token_float,
+										0 ) );
+				handled = true;
+			}
+						
+			if ( NL_INT == rStack[ idx ].token_type )
+			{
+			dStack.push( new DataItem( NL_INT, 
+										"",
+										0.0,
+										rStack[ idx ].token_int ) );
+				handled = true;
+			}
+			
+			if ( NL_BOOL == rStack[ idx ].token_type )
+			{
+			dStack.push( new DataItem( NL_BOOL, 
+										"",
+										0.0,
+										rStack[ idx ].token_int ) );
+				handled = true;
+			}
+			
+			if ( ! handled )
+			{
+				if ( doing_args )
+				{
+					// Ending close Paren  )   would be OK here and we are done
+					if ( ( NL_OPERATOR          == rStack[ idx ].token_type )
+					  && ( OP_IS_EXPRESSION_END == rStack[ idx ].token_op_means ) )
+					{
+						idx++;	// skip over ending )
+						break;
+					}
+					
+					// Skip Over any Comma Punctuation in Arg list
+					// as it is Syntactic sugar and not needed here
+					var op_to_do = rStack[ idx ].token_op_means;
+					
+					var skip = false;
+					if ( NL_PUNCTUATION  == rStack[ idx ].token_type )
+						skip = true;
+					
+					if ( NL_OPERATOR     == rStack[ idx ].token_type )
+					{
+						if ( ( OP_IS_PERIOD  == op_to_do )
+						|| ( OP_IS_COMMA     == op_to_do )
+						|| ( OP_IS_COLON     == op_to_do )
+						|| ( OP_IS_SEMICOLON == op_to_do ) )
+							skip = true;
+					}
+				  
+					if ( skip )
+					{
+						idx++;
+						continue;
+					}
+					
+					// Questionable Token type found in Arg list
+					break;
+				}
+				
+			// TODO  test with some reasonable variations to see what is OK here
+			//
+				break;
+			}
+			
+			if ( handled )
+			{
+				// add name of Token to Arg string
+				if ( display_internal )
+					argsOrData_list.push( rStack[ idx ].internal_token );
+				else
+					argsOrData_list.push( rStack[ idx ].visible_token );
+			}
+			
+			idx++;
+			
+		}	// end  WHILE
+		
+		return idx - start;
+	}
 
 //		Use 1 number (Float or Int or String) with a Math Operator like  abs  sin  cos  tan
 //			Try to convert String to a number if given Data is a String
@@ -1284,7 +1543,7 @@ class  ForGL_Run
 		// TODO: Handle Math Error(s) some more here ...
 	};
 
-		// TODO  low priority: See if result was really an Integer
+		// See if result was really an Integer
 		
 		if ( is_int )
 		{
@@ -1984,19 +2243,49 @@ error( "\nINTERNAL ERROR:  " + opMeanAsStr( op_to_do ) + " Wrong Operator to use
 					result_str = "True";
 				else
 					result_str = "False";
-			}
 			
-			var msg_str = " ";
-			if ( 0 < data1_name.length )
-				msg_str += "(" + data1_name + ") ";
-			msg_str += data1_str;
+			//  Output string to show the Conditional Boolean expression
+			//  as code      and also the Run time True/False result
+			//  ( i <= L )   False
+			//
+				var msg_str = " ( ";
+				if ( 0 < data1_name.length )
+					msg_str += data1_name;
+				else
+					msg_str += data1_str;
 
-			msg_str += "  " + opMeanAsStr( op_to_do ) + "  ";
-			if ( 0 < data2_name.length )
-				msg_str += "(" + data2_name + ") ";
-			msg_str += data2_str;
+				// Use Internal name here as it will most likely match to other programming language use
+				msg_str += "  " + opMeanAsStr( op_to_do, true ) + "  ";
+				if ( 0 < data2_name.length )
+					msg_str += data2_name;
+				else
+					msg_str += data2_str;
+					
+				msg_str += " ) ";
 
-			msg( msg_str + "  is  " + result_str + "\n" );
+				msg( msg_str + "  \tis  " + result_str + "\n" );
+			}
+			else
+			{
+			//  OR
+			//  as assignment code with the Run time value
+			//  TODO  improve details shown here by making look more like Haxe code
+			//
+				var msg_str = "    ";
+				if ( 0 < data1_name.length )
+					msg_str += data1_name;
+				else
+					msg_str += data1_str;
+
+				// Use Internal name here as it will most likely match to other programming language use
+				msg_str += "  " + opMeanAsStr( op_to_do, true ) + "  ";
+				if ( 0 < data2_name.length )
+					msg_str += data2_name;
+				else
+					msg_str += data2_str;
+
+				msg( msg_str + "  \t=  " + result_str + "\n" );
+			}
 			run_text_line++;
 		}
 		
@@ -2272,20 +2561,6 @@ error( "\nINTERNAL ERROR:  " + opMeanAsStr( op_to_do ) + " Wrong Operator to use
 
 		return ret_val;
 	}
-
-	
-	public function procCall( rStack : Array<NLToken>, dStack : Array<DataItem>,
-									oStack : Array<Int>, nStack : Array<Int> )
-	{
-		
-		
-		
-		
-		
-		
-	}
-
-	
 	
 	
 //////////////////////////////////////////////////////////////////////////////
@@ -2389,6 +2664,10 @@ try {
 			if ( 0 > cast( run_result, Int ) )		// Negative values mean Errors
 				break;
 			
+			// Clean up previous Call stack
+			while ( 0 < callStack.length )
+				callStack.pop();
+			
 //
 //		Hit a Key to run again or  S to Save Verb or  F to Finish ?
 //
@@ -2403,17 +2682,18 @@ try {
 			{
 				msg( "\n    Hit a Key to run again or  S to Save Verb or  F to Finish ? " );
 			}
-				run_text_line++;
-				run_text_line++;
+			
+			run_text_line++;
+			run_text_line++;
 
-				var ans : String = stdin.readLine();
-				
-				var action = "";
-				if ( 0 < ans.length )
-					action = ans.charAt( 0 ).toUpperCase();
+			var ans : String = stdin.readLine();
+			
+			var action = "";
+			if ( 0 < ans.length )
+				action = ans.charAt( 0 ).toUpperCase();
 
-				if ( "F" == action )	// Finish ?
-					break;
+			if ( "F" == action )	// Finish ?
+				break;
 			
 			if ( 0 < in_dictionary_file_name.length )
 			{
@@ -2554,29 +2834,37 @@ try {
 			var i = 0;
 			while ( i < export_as_code_log.length )
 			{
-				msg( export_as_code_log[ i ], GREEN, true );
+				eraseToLineEnd( 0 );
+
+				msg( export_as_code_log[ i ].token_name + " ", getTypeColor( export_as_code_log[ i ].token_type ), false );
+				
+				msg( "\n" );
+				
 				i++;
 			}
 			
 			msg( "\n" );
 			
 
-		#if sys
+		// #if sys
 
-			comment( "", "Create & Write out Export file", "" );
+			// See code in Main.hx at end of  initRunForGL
+			
+		//
+		//	comment( "", "Create & Write out Export file", "" );
 
-			var expAs = new NLExportAs();
+		//	var expAs = new NLExportAs();
 			
-			var expRet = expAs.init( export_as_code_log );
+		//	var expRet = expAs.init( export_as_code_log );
+		//	
 			
 			
 			
-			
-		#else
+		// #else
 		
-			warning( "Please copy/paste the Export info to a file now.", GREEN );
+		//	warning( "Please copy/paste the Export info to a file now.", GREEN );
 			
-		#end
+		// #end
 		}
 	} 
 	catch ( e:Dynamic ) 
@@ -2601,6 +2889,9 @@ try {
 	private var opStack   : Array<Int>;
 	private var nouns     : Array<Int>;
 	
+	private var callStack   : Array<String8>;		// Verb+ names  User defined + Built In Verbs called
+	private var exportStack : Array<String8>;		// Verb+ and Global Noun names
+	
 	private var assignStack : Array<Int>;
 	
 	private var repeat_found = false;
@@ -2618,8 +2909,20 @@ try {
 //
 //			Protect with  try  block
 try {
-		run_text_line = textLine;
+		run_text_line    = textLine;
+		export_as_code   = false;
+		display_internal = false;
+		show_details     = false;
 		
+		var user_Verb : String8 = "";
+		
+// Uncomment these 2 lines to get No Questions for PY Debug		
+#if ( NO_ASK )	
+		user_Verb = "2 show";
+#end
+
+#if ( ! NO_ASK )
+
 	#if ( ! cs && !js )
 		goToPos( run_text_line, 0 );
 		eraseToDispEnd();
@@ -2748,8 +3051,8 @@ try {
 				}
 			}
 			//  else  is already set up above
-			
 		}
+		
 	/*
 		msg( "Hit the Space bar to continue. " );
 		while ( true )
@@ -2776,23 +3079,23 @@ try {
 	#end
 	
 		setOut( WRITE_PREVIOUS );
-		
-		var user_Verb :String8 = "";
 
 
-// JavaScript uses a HTML text control for the User to enter Verb definition to run
-//
 	#if  sys
 		user_Verb = enterYourVerb();	// Edit a Verb to run using a simple text mode Editor 
 		run_text_line++;
 		run_text_line++;
 		
-		if ( 0 != cast( ForGL_ui.enterYourVerb_return, Int ) )
+		if ( 0 != cast(ForGL_ui.enterYourVerb_return, Int ) )
 			return ForGL_ui.enterYourVerb_return;
 	#end
 
-		if ( ( "test_verb" == Strings.toLowerCase8( user_Verb ) )
-		  || ( "testverb"  == Strings.toLowerCase8( user_Verb ) ) )
+#end		// #if  ! NO_ASK
+
+		var user_Verb_lc = Strings.toLowerCase8( user_Verb );
+		if ( ( "main"      == user_Verb_lc )	//  Main ()  entry point  support
+		  || ( "test_verb" == user_Verb_lc )
+		  || ( "testverb"  == user_Verb_lc ) )
 			user_Verb = def_to_run;
 
 		user_def = user_Verb;
@@ -2807,9 +3110,14 @@ try {
 				run_text_line++;
 			#end
 			
-			export_as_code_log  = new Array<String8>();
-			export_as_code_log.push( "# Original Verb  " + export_as_code_verb_name );
-			export_as_code_log.push( user_def );
+			if ( 0 < export_as_code_log.length )
+			{
+				while ( 0 < export_as_code_log.length )
+					export_as_code_log.pop();			// empty log array
+			}
+
+			export_as_code_log.push( new TypedTokens( NL_VERB, "# Original Verb  " + export_as_code_verb_name ) );
+			export_as_code_log.push( new TypedTokens( NL_VERB, user_def ) );
 		}
 		
 		// Parse given User Verb
@@ -2840,6 +3148,12 @@ try {
 		// Recover from Errors / Warnings
 		
 
+		callStack  = new Array<String8>();
+		
+		exportStack  = new Array<String8>();
+		
+		
+		argsOrData_list = new Array<String8>();
 
 //
 //	 Resolve the Meanings of the Tokens
@@ -2862,13 +3176,18 @@ error( "\nSYNTAX ERROR: count of " + Std.string( nl_Parse.left_groups ) + " Left
 		nl_Parse.resolveAssigns( runStack );
 
 		var choice_result = RET_IS_INTERNAL_ERROR;
+		
+		// Problems with Export is suspected to be  refactorForExport  COMMENTED OUT
+	/*
 		if ( export_as_code )
 		{
+			// Problems with Export is suspected to be  refactorForExport
 			var export_runStack = nl_Parse.refactorForExport( runStack );
 			choice_result = nl_Parse.resolveChoice( export_runStack );
 			runStack = export_runStack;
 		}
 		else
+	*/
 			choice_result = nl_Parse.resolveChoice( runStack );
 
 		if ( 0 > cast( choice_result, Int ) )
@@ -2912,12 +3231,94 @@ error( "\nSYNTAX ERROR: count of " + Std.string( nl_Parse.left_groups ) + " Left
 		
 		setOut( WRITE_PREVIOUS );
 		
+//
+//	Export  ?
+//
 		if ( export_as_code )
-		{
-			export_as_code_log.push( "# forGL Verb after changes for Export as Code  " + export_as_code_verb_name );
-			export_as_code_log.push( colored_text_no_color );
-			export_as_code_log.push( "# forGL Verb exact Syntax table  " + export_as_code_verb_name );
-			export_as_code_log.push( nl_Parse.words_table_text );
+			{
+				export_as_code_log.push( new TypedTokens( NL_VERB, "# forGL Verb after changes for Export as Code  " + export_as_code_verb_name ) );
+				export_as_code_log.push( new TypedTokens( NL_VERB, colored_text_no_color ) );
+			
+				export_as_code_log.push( new TypedTokens( NL_VERB, "# forGL Verb exact Syntax  " + export_as_code_verb_name ) );
+			
+			
+			var export_words_needed = new Array<String8>();  // Verbs, Verbs_BI, Nouns (global, in dictionary)
+			var export_words_done   = new Array<String8>();
+			var done = false;
+			
+			// temporary to not mess with actual running var
+			var work_tokens = new Array<String8>();
+			var work_stack  = new Array<NLToken>();			
+			
+		// Set up work_stack
+			color = ForGL_ui.DEFAULT_COLOR;
+			i = 0;
+			
+			while ( i < runStack.length )	// using existing run stack
+			{
+				var str : String8 = "";
+				if ( display_internal )
+					str = runStack[i].internal_token;
+				else
+					str = runStack[i].visible_token;
+
+				// C#  so far  does Not do Colored text
+				#if cs
+					msg( str + " " );
+				#else
+					color = getTypeColor( runStack[i].token_type );
+					msg( str + " ", color );
+				#end
+				
+				work_tokens.push( str );
+				
+				colored_text_no_color += str + " ";
+				
+			// Check type of word for any extra actions
+				if ( ( NL_VERB_BI == runStack[i].token_type )
+				  || ( NL_VERB    == runStack[i].token_type )
+				  || ( NL_NOUN    == runStack[i].token_type ) )
+				{
+					// Save names of any words that need more from Export
+					export_words_needed.push( str );
+				}
+				
+				export_as_code_log.push( new TypedTokens( runStack[i].token_type, str ) );
+				//export_as_code_log.push( " " );
+				
+				i++;
+			}
+			
+			var lines = nl_Parse.resolveTokens( work_tokens, nlDict, work_stack, true );
+			
+		///   WHAT to do here  ?
+		//	export_as_code_log.push( nl_Parse.words_table_text );
+			
+			if ( 0 == export_words_needed.length )
+				done = true;
+			
+			while ( !done )
+			{
+				
+				var text_lines = nl_Parse.resolveTokens( work_tokens, nlDict, work_stack, true );
+
+				repeat_found = nl_Parse.repeat_verb_found;
+
+				if ( nl_Parse.left_groups != nl_Parse.right_groups )
+				{
+	error( "\nSYNTAX ERROR: count of " + Std.string( nl_Parse.left_groups ) + " Left and " + Std.string( nl_Parse.right_groups ) + " Right group symbols ( ) [ ] { } not equal.\n" );
+					run_text_line++;
+					run_text_line++;
+				}
+			
+				// export_as_code_log.push( nl_Parse.words_table_text );
+		
+				nl_Parse.resolveAssigns( work_stack );
+				
+				done = true;
+			}
+			
+			// export_as_code_log.push( nl_Parse.words_table_text );
 		}
 		
 	#if 	!js
@@ -3683,17 +4084,19 @@ error( "\nSYNTAX ERROR: count of " + Std.string( nl_Parse.left_groups ) + " Left
 			}
 			
 //
-//		OPERATORS and VERBS
+//		OPERATORS  PUNCTUATION  and  VERBS  Oh my!
 //
 			apply_op = false;
 
-			if ( NL_OPERATOR == runStack[ ip ].token_type )
+			if ( ( NL_OPERATOR    == runStack[ ip ].token_type )
+			  || ( NL_PUNCTUATION == runStack[ ip ].token_type ) )
 			{
-comment( "  OPERATORS and VERBS    " );
+comment( "  OPERATORS, PUNCTUATION and VERBS    " );
 				var op_to_do = runStack[ ip ].token_op_means;
 				
 	comment( "  Check for Punctuation. Punctuation is never pushed on Operator stack.  " );
-				if ( ( OP_IS_PERIOD    == op_to_do )
+				if ( ( NL_PUNCTUATION  == runStack[ ip ].token_type )
+				  || ( OP_IS_PERIOD    == op_to_do )
 				  || ( OP_IS_COMMA     == op_to_do )
 				  || ( OP_IS_COLON     == op_to_do )
 				  || ( OP_IS_SEMICOLON == op_to_do ) )
@@ -3849,7 +4252,8 @@ comment( "  OPERATORS and VERBS    " );
 							ip++;
 							continue;
 						}
-					}
+					}		//	end IF doing 1 of 3 Assignments 
+							//  := from OR = OR =: into
 					else
 					if ( OP_IS_PI == op_to_do )
 					{
@@ -4144,7 +4548,7 @@ viewDataOpNouns( runStack, dataStack, opStack, nouns, dataOpNoun_text_line );
 					ip++;
 					continue;
 				}
-			}
+			}  //  end  of  Operator  section
 			
 //
 //		CHECK FOR VERB
@@ -4196,19 +4600,93 @@ viewDataOpNouns( runStack, dataStack, opStack, nouns, dataOpNoun_text_line );
 			
 //		RUN a VERB
 //
-			if ( ( show_details ) && ( NL_VERB_RET != runStack[ ip ].token_type ) )
+			var verb_move_ahead = 1;
+
+			if ( NL_VERB_RET != runStack[ ip ].token_type )
 			{
-				msg( "\n   running Verb   " + runStack[ ip ].internal_token + "\n" );
-				run_text_line++;
-				run_text_line++;
+				// Go over again the logic of Look Behind ... earlier in Reading order
+				// and the idea of Look Ahead ... check next symbol to see if open Paren (
+				// which indicates the start of an Algebra style Call,  f ( x )
+				
+				var is_call_style       = false;
+				var call_args : String8 = "";
+				
+				// LOOK AHEAD
+				//    Algebra style Call  y = f ( x )
+				//
+				// Does Arg list follow Verb f ?  f ( x )
+				//    look for Opening Paren (      ^ 
+				// IF so then get next token          ^   x as example here
+				//
+				if ( ( ip + 2 ) < runStack.length )
+				{
+					// Is it  (
+					//
+					if ( ( NL_OPERATOR            == runStack[ ip + 1 ].token_type )
+					  && ( OP_IS_EXPRESSION_START == runStack[ ip + 1 ].token_op_means ) )
+					{
+						is_call_style = true;
+						
+						var result = argsOrData( ip + 1, runStack, dataStack, opStack );
+						
+						verb_move_ahead = result;
+						
+						//call_args = runStack[ ip + 2 ].internal_token;
+						call_args = argsOrData_Str();
+					}
+				}
+				
+				if ( false == is_call_style )
+				{
+					// LOOK BEHIND
+					// See if Data stack has items
+					if ( 0 < dataStack.length )
+					{
+						// USE Top (most recent Item) of Data stack as Arg value
+						call_args = dataStack[ dataStack.length - 1 ].toStr();
+					}
+					else
+					{
+						// LOOK AHEAD
+						// there may be Data available just after the Verb name
+						// Nothing on Data stack 
+						// and Not using obvious Algebra f(x) style Call
+						// See if Data token follows this Verb
+						
+						var result = argsOrData( ip + 1, runStack, dataStack, opStack );
+						
+						verb_move_ahead = result + 1;
+						call_args = argsOrData_Str();
+					}
+				}
+
+				var verb_name = runStack[ ip ].visible_token;
+				if ( display_internal )
+					verb_name = runStack[ ip ].internal_token;
+				
+				if ( show_details )
+				{
+				// Call stack at Left side then Verb name
+				//
+					var msg_str : String8 = "\n";
+					if ( 0 < callStack.length )
+						msg_str = msg_str.insertAt( msg_str.length8(), arrToStrSep( callStack, " > " ) );
+					
+					msg( msg_str + " > " + verb_name + " ( " + call_args + " )\n" );
+					run_text_line++;
+					run_text_line++;
+				}
+				
+				// Add Verb name as part of Call stack
+				callStack.push( verb_name );
+				
+				// Exports
+				if ( 0 == exportStack.length )
+					exportStack.push( verb_name );
+				else
+					addName( exportStack, verb_name );
 			}
 			
-		//if ( ip + 2 < runStack.length )
-		//{
-		//	comment( "", "See if ( ) follows the Verb, meaning using Call style syntax", "" );
-			
-			
-		//}
 			
 			if ( NL_VERB == runStack[ ip ].token_type )
 			{
@@ -4223,7 +4701,8 @@ viewDataOpNouns( runStack, dataStack, opStack, nouns, dataOpNoun_text_line );
 				
 				if ( 0 == verb_text.length8() )
 				{
-					ip++;
+					error( "\nSYNTAX ERROR: No text for for Verb: " + runStack[ ip ].visible_token );
+					ip += verb_move_ahead;
 					continue;
 				}
 				
@@ -4232,7 +4711,7 @@ viewDataOpNouns( runStack, dataStack, opStack, nouns, dataOpNoun_text_line );
 				if ( 0 == verb_tokens.length )
 				{
 					// Maybe Verb text was all Comments ?
-					ip++;
+					ip += verb_move_ahead;
 					continue;
 				}
 				
@@ -4257,14 +4736,14 @@ error( "\nSYNTAX ERROR: count of " + Std.string( nl_Parse.left_groups ) + " Left
 				nl_Parse.resolveAssigns( runStack );
 
 				var choice_result = RET_IS_INTERNAL_ERROR;
-				if ( export_as_code )
-				{
-					var export_runStack = nl_Parse.refactorForExport( runStack );
-					choice_result = nl_Parse.resolveChoice( export_runStack );
+				//if ( export_as_code )
+				//{
+					// var export_runStack = nl_Parse.refactorForExport( runStack );
+					// choice_result = nl_Parse.resolveChoice( export_runStack );
 					
-					runStack = export_runStack;
-				}
-				else
+					// runStack = export_runStack;
+				//}
+				//else
 					choice_result = nl_Parse.resolveChoice( runStack );
 
 				if ( 0 > cast( choice_result, Int ) )
@@ -4272,12 +4751,22 @@ error( "\nSYNTAX ERROR: count of " + Std.string( nl_Parse.left_groups ) + " Left
 					intp_return_result = choice_result;
 					break;
 				}
-
-				if ( ( show_words_table || export_as_code ) && ( 0 < runStack.length ) )
-					run_text_line += nl_Parse.showWordsTable( runStack, show_words_table, false, export_as_code );
-
+			
+			// Sanity check: anything to Run ?
+				if ( 0 >= runStack.length )
+				{
+					error( "\nSYNTAX ERROR: Nothing to run. Stopping\n" );
+					intp_return_result = RET_IS_USER_ERROR_SYNTAX;
+					break;
+				}
+				
+				if ( show_words_table )
+					run_text_line += nl_Parse.showWordsTable( runStack, show_words_table, false, false );
+				else
 				if ( export_as_code )
 				{
+					run_text_line += nl_Parse.showWordsTable( runStack, true, false, export_as_code );
+					
 					var j = 0;
 					var exp_text = "";
 					while ( j < runStack.length )
@@ -4296,21 +4785,21 @@ error( "\nSYNTAX ERROR: count of " + Std.string( nl_Parse.left_groups ) + " Left
 						j++;
 					}
 	
-					export_as_code_log.push( exp_text );
+					export_as_code_log.push( new TypedTokens( runStack[j].token_type, exp_text ) );
 				}
 
 				comment( "", "ADD a structure so after the Verb to be called is done,",
 				"we can resume running in the original Verb after this called Verb.", "" );
-				runStack.push( new NLToken() );
+				runStack.push( new NLToken( "","","","",0.0,NL_TYPE_UNKNOWN,NL_TYPE_UNKNOWN,0,OP_IS_UNKNOWN ) );
 				var rIdx = runStack.length - 1;
 				
 				var new_length = runStack.length;
 				
 				runStack[ rIdx ].token_type     = NL_VERB_RET;
 				comment( "", "Return placeholder ONLY Slightly Visible by seeing an extra blank space", "" );
-				runStack[ rIdx ].internal_token = " ";
-				runStack[ rIdx ].visible_token  = " ";
-				runStack[ rIdx ].token_int      = ip + 1;		// new  ip  value after Return
+				runStack[ rIdx ].internal_token = "return";
+				runStack[ rIdx ].visible_token  = "return";
+				runStack[ rIdx ].token_int      = ip + 1 + verb_move_ahead;		// new  ip  value after Return
 				runStack[ rIdx ].token_float    = (new_length - old_length);	// How many structures on Run Stack to remove later
 
 				// Save Assign, Noun, Operator and Data stacks onto Top of Old from Bottom of existing
@@ -4328,10 +4817,10 @@ error( "\nSYNTAX ERROR: count of " + Std.string( nl_Parse.left_groups ) + " Left
 				while ( 0 < opStack.length )
 					old_opStack.push( opStack.shift() );
 				
-			//  TODO  Strongly consider having a Procedure call style interface to a Verb
+			//  a Procedure call style interface to a Verb
 			//  Procedure call interface would look like
 			//      myVerb( 47, x )
-			//  where you could use Constants, Expressions, Nouns or even other Verbs as arguments.
+			//  where you could use Constants, Expressions, Nouns or even other Verbs? as arguments.
 			//  For a Procedure style ONLY the 2 (in this case) arguments would be on the Data Stack
 			//  given to the called Procedure.
 			//
@@ -4398,6 +4887,8 @@ error( "\nSYNTAX ERROR: count of " + Std.string( nl_Parse.left_groups ) + " Left
 					num_to_do--;
 				}
 			*/
+				
+				callStack.pop();	// Remove previous Verb name
 	
 				var new_ip = runStack[ ip ].token_int;
 				
@@ -4591,9 +5082,8 @@ error( "\nSYNTAX ERROR: count of " + Std.string( nl_Parse.left_groups ) + " Left
 								  && ( 0 < dataStack[dataIdx].data_str.length ) )
 									exp = dataStack[dataIdx].data_str;
 								
-								export_as_code_log.push( "show ( " + exp + " )" );
+								export_as_code_log.push( new TypedTokens( NL_VERB_BI, "show ( " + exp + " )" ) );
 							}
-							
 							dataStack.pop();
 							
 							break;
@@ -4607,10 +5097,26 @@ error( "\nSYNTAX ERROR: count of " + Std.string( nl_Parse.left_groups ) + " Left
 						
 						i--;
 					}
+					
+					callStack.pop();	// Remove previous Verb name
 				}
 			}
 
-			ip++;
+			// ip++;
+			
+		// SANITY  CHECK  anywhere it makes sense. 
+			// Fix Defects, Performance is less significant
+			//
+			if ( 0 >= verb_move_ahead )
+			{
+				// error here. 
+				// TODO see how verb move ahead works and fix there
+				error( "INTERNAL ERROR: verb_move_ahead = " + Std.string( verb_move_ahead ) + "\n" );
+
+				verb_move_ahead = 1;
+			}
+
+			ip += verb_move_ahead;
 			
 		} 
 //
@@ -4738,4 +5244,5 @@ comment( "", "    END  OF  INTERPRETER  LOOP    ", "" );
  */
 
  	}
-}		// END  of  runInterpreter
+}		// END  of  runInterpreter
+
