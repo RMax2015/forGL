@@ -23,7 +23,7 @@ import haxe.CallStack;
 	import js.html.*;
 	
 	// Support to send UI data back to Browser from this Web Worker thread
-	import WebWorker.sendMessage  as  sendMessage;
+	// import WebWorker.sendMessage  as  sendMessage;
 	
 #end
 
@@ -46,7 +46,7 @@ using forGL.UI.ForGL_ui;
 
 //		Logical names of Output places in UI
 //
-@:enum
+enum
 abstract UI_Out(Int) {
 	var WRITE_PREVIOUS  = -1;	// Write or send the previous UI Output cache and then set to Default cache
 	
@@ -489,7 +489,7 @@ class ForGL_ui
 				color = VERB_COLOR;
 				
 			case NL_VERB_RET:
-				// color = VERB_COLOR;		// use Default and see how it looks
+				color = VERB_COLOR;		// use Default and see how it looks
 
 			case NL_NOUN:
 				color = NOUN_COLOR;
@@ -515,6 +515,9 @@ class ForGL_ui
 
 			case NL_FLOAT:
 				color = DATA_COLOR;
+				
+			case NL_PUNCTUATION:
+				color = COMMENT_COLOR;
 				
 			case NL_CHOICE:
 				color = VERB_BI_COLOR;  // or maybe separate  CHOICE_COLOR ?
@@ -926,7 +929,7 @@ class ForGL_ui
 	
 	public static function ww_msg_out( message_type_str : String, ?message_details : String = "" )
 	{
-		sendMessage( message_type_str, message_details );
+		// sendMessage( message_type_str, message_details );
 	}
 
 
