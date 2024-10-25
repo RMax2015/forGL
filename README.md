@@ -1,3 +1,5 @@
+# forGL is a 4GL general purpose programming language.
+
 # forGL Web Site (expect more changes here):
 https://www.forgl.org
 # .
