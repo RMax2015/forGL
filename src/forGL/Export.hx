@@ -18,6 +18,9 @@ package forGL;
 using hx.strings.Strings;
 using hx.strings.String8;
 
+using forGL.Parse.Parse;
+using forGL.Parse.NLToken;
+
 using  forGL.NLTypes;
 import forGL.NLTypes.NLTypeAs.resolveType    as  resolveType;
 
@@ -27,7 +30,7 @@ import forGL.Meanings.MeansWhat.returnMeanAsStr  as  returnMeanAsStr;
 
 import forGL.data.Data.ForGL_data;
 
-import forGL.Dictionary.DictWord;
+// import forGL.Dictionary.DictWord;
 import forGL.Dictionary.NLDictionary;
 
 import forGL.Meanings.ReturnMeanings;
@@ -41,7 +44,7 @@ import  forGL.Comments.comment   as  comment;
 using forGL.Export.NLExport;
 
 
-@:enum
+enum
 abstract ExportTypes(Int) {
 
 	var EXPORT_TYPE_UNKNOWN = 0;
@@ -179,7 +182,7 @@ class  NLExport
 				continue;
 			}
 			
-			var dict_word : DictWord = dict.unique_Dictionary_Words[ dict_idx ];
+			var dict_word : NLToken = dict.unique_Dictionary_Words[ dict_idx ];
 			
 			rInfo.resolve_str             = dict_word.token_str;
 			rInfo.resolve_float           = dict_word.token_float;
