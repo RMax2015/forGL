@@ -44,11 +44,12 @@ class Comments
 // Insert a Comment OR multiple lines of Comments into a Haxe target programming language.
 //
 //		Example:
-// comment( "Describe What is going on", "", "    Alternate approaches to What is going on" );
+// comment( "Describe WHY this is important", "", "    Alternate approaches to What is going on" );
 // The second line will look like a blank line.
 //
 //      Output looks like:
-//  Describe What is going on                                                      ;
+//
+//  Describe WHY this is important                                                 ;
 //                                                                                 ;
 //      Alternate approaches to What is going on                                   ;
 //
@@ -56,6 +57,20 @@ class Comments
 //
     macro public static function comment( first : Expr, rest : Array< Expr > ) : Expr 
 	{
+		
+//
+//		HACK  to avoid macro errors FROM Haxe 4.2.4 or later ?
+//
+//
+		
+		// DISABLE COMMENTS FROM BEING OUTPUT
+		
+		var cmts = [ macro $v{ '' } ];
+		return macro $b{ cmts };
+		
+		
+		
+		
 		// create a Default Warning as an array of just 1 macro Expression
 		// idea from  https://code.haxe.org/category/macros/build-arrays.html
 		//
