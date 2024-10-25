@@ -304,6 +304,7 @@ class ForGL_toml
 						
 						found_file_type = true;
 					}
+				/*
 					else
 					if ( "[forGL_commands]" == fileLines[ i ] )
 					{
@@ -318,6 +319,7 @@ class ForGL_toml
 						
 						found_file_type = true;
 					}
+				*/
 					else
 					{
 						// UNKNOWN File Type
@@ -480,9 +482,9 @@ var err_msg = "ERROR: Unknown File type. Closing File. First section is: " + fil
 				return false;
 		}
 		
-		// 0 to 9 is Not first character
-		if ( ( "0" <= result.charAt8( 0 ) )
-		  && ( "9" >= result.charAt8( 0 ) ) )
+		// 0 to 9 is Not valid first character
+		var strT : String = result.charAt8( 0 );
+		if ( ( "0" <= strT ) && ( strT <= "9" ) )
 			return false;
 
 		return true;
