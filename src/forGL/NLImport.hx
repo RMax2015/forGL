@@ -90,7 +90,8 @@ class  NLImport
 			// Change to OEM characters ONLY for display.  NOT for comparison with internal UTF8.
 //			words_str = Utf8_to_OEM.oemStr( words_str );
 
-		var i = 1;
+		var i = 0;
+		var line_len = 0;
 		while ( i < words.length )
 		{
 			next_word = words[ i ];
@@ -98,11 +99,24 @@ class  NLImport
 //			if ( do_OEM )
 //				next_word = Utf8_to_OEM.oemStr( next_word );
 
-			words_str += ", " + next_word;
+			
 			i++;
+			
+			// Limit string length of exported words per line
+			if ( ( line_len + next_word.length ) > 77 )
+			{
+				// Too long so move to next line and set length
+				words_str += ", \n" + next_word;
+				line_len = next_word.length;
+			}
+			else
+			{
+				words_str += ", " + next_word;
+				line_len  +=   2  + next_word.length;
+			}
 		}
 		
-		var str = "Words to Import are: " + words_str + "\n";
+		var str = "Words to Import are:\n" + words_str + "\n";
 		importWords_msgs += str;
 		
 		var rInfo = new ResolveInfo();
