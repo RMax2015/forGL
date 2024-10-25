@@ -147,24 +147,27 @@ class ForGL_data
 	{
 		var ret_val = RET_IS_OK;
 		
-		// TODO  sometime add support for SQL or XML or JSON files
+		// TODO  sometime add support for other files: TXT or LOG or SQL or XML or JSON files
 		
-		// Make sure this is has  .toml  file extension
-		var extension = path_name.substr( path_name.length - 5, 5 );
-		if ( ".toml" != extension.toLowerCase() )
+		if ( FILE_IS_DICTIONARY == expected_type )
 		{
-			error( "ERROR: File extension not .toml : " + path_name + " " + extension + "\n" );
-			
-			ret_val = RET_IS_USER_ERROR_DATA;
-		}
-		else
-		{
-			ret_val = toml.init( path_name, expected_type );	// Start up  toml  file handler
-			
-			if ( ReturnMeanings.RET_IS_OK == ret_val )
+			// Make sure this is has  .toml  file extension
+			var extension = path_name.substr( path_name.length - 5, 5 );
+			if ( ".toml" != extension.toLowerCase() )
 			{
-				actual_file_type = toml.actual_file_type;
-				actual_path_file = toml.actual_path_file;
+				error( "ERROR: File extension not .toml : " + path_name + " " + extension + "\n" );
+				
+				ret_val = RET_IS_USER_ERROR_DATA;
+			}
+			else
+			{
+				ret_val = toml.init( path_name, expected_type );	// Start up  toml  file handler
+				
+				if ( ReturnMeanings.RET_IS_OK == ret_val )
+				{
+					actual_file_type = toml.actual_file_type;
+					actual_path_file = toml.actual_path_file;
+				}
 			}
 		}
 		
