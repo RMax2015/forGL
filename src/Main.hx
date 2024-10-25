@@ -19,6 +19,7 @@ using Sys;
 	import js.Browser;
 #else
 	import sys.FileSystem;
+	import sys.io.File;
 #end
 
 //
@@ -30,6 +31,7 @@ using hx.strings.Strings;
 using hx.strings.String8;
 
 // Cursor positioning and Colored text, needed AnsiCon.exe for Win7 CMD window
+// On Windows also need to set code page to 65001   chcp 65001   before running
 // C++ and Python and Java  does Colored text and Cursor Positioning  OK.   C# no.
 using hx.strings.ansi.Ansi;	
 using hx.strings.ansi.AnsiColor;
@@ -43,12 +45,18 @@ import forGL.*;
 import forGL.Run.ForGL_Run		as 				ForGL_Run;
 //import forGL.Run.ForGL_Run.forgl_version   as   forGL_Version;
 
+import forGL.Run.TypedTokens    as              TypedTokens;
+
+
 import forGL.UI.ForGL_ui          as   ForGL_ui;
 import forGL.UI.ForGL_ui.msg      as   msg;
 import forGL.UI.ForGL_ui.error    as   error;
 import forGL.UI.ForGL_ui.enterYes as   enterYes;
 
 import forGL.FileTypes.FileTypes   as   FileTypes;
+
+using  forGL.NLTypes;
+import forGL.NLTypes.NLTypeAs.nlTypeAsStr    as  nlTypeAsStr;
 
 import forGL.Meanings.ReturnMeanings;
 import forGL.Meanings.MeansWhat.returnMeanAsStr  as  returnMeanAsStr;
@@ -296,6 +304,51 @@ class Main
 		ForGL_ui.system_name = "Unknown_system_name";
 
 	#if sys
+	
+		#if java
+		//
+		// Java uses the Default encoding of the installed system.
+		// On Windows I find that is NOT UTF8 support as needed
+		// See below for details about possible fix
+		//
+			// https://stackoverflow.com/questions/73569018/how-to-print-and-work-with-utf-8-string-on-java
+		//
+		/*  JAVA  code below
+		
+		package pkg;
+
+		import java.io.FileDescriptor;
+		import java.io.FileOutputStream;
+		import java.io.IOException;
+		import java.io.PrintStream;
+		import java.nio.charset.StandardCharsets;
+
+		public class Main {
+
+			public static void main(String[] args) throws IOException {
+				
+				String str = "¿æŁéİüłïąņąø"; // Sample data from the question.
+				
+				System.out.println("1: " + str); // Fails if default charset is not UTF-8.  
+
+				// Redirect System.out to use a PrintStream using UTF-8 charset.
+				FileOutputStream fos2 = new FileOutputStream(FileDescriptor.out);
+				PrintStream ps2 = new PrintStream(fos2, true, StandardCharsets.UTF_8);
+				System.setOut(ps2);
+				System.out.println("2: " + str); // Works.
+				
+				// Use your own PrintStream with UTF-8 charset instead of using System.out.
+				FileOutputStream fos3 = new FileOutputStream(FileDescriptor.out);
+				PrintStream ps3 = new PrintStream(fos3, true, StandardCharsets.UTF_8);
+				ps3.print("3: " + str); // Works.
+				ps3.close();
+			}
+		}
+				
+		*/
+		
+		#end
+	
 		ForGL_ui.system_name = Sys.systemName();
 	
 		start_dir = Sys.getCwd();		// Save original Directory
@@ -346,7 +399,7 @@ class Main
 			.flush();
 	#end
 		
-		var version = "forGL v0.0.2 Prototype in ";
+		var version = "forGL v0.0.3 Prototype in ";
 		msg( version );
 		
 	#if cpp
@@ -523,10 +576,14 @@ class Main
 		init_result = forGLRun.init( "", init_lines );
 	#else
 
-		#if ( debug || cs )
+	
+	//  EDIT this to work with your Debug setup
+	//  
+	
+		var debug_path_file  = "C:/Randy/Programming/Haxe/Projects/AST_4GL_Proto/forGL_Dictionary_Prototype.toml";
+		
+		#if ( python )
 			// NEED FULL PATH as Debugger runs in another Dir
-			var debug_path_file  = "C:/Randy/Programming/Haxe/Projects/AST_4GL_Proto/forGL_Dictionary_Prototype.toml";
-
 			init_result = forGLRun.init( debug_path_file, init_lines );
 		#else
 
@@ -636,6 +693,38 @@ class Main
 		forGLRun.run_text_line = text_line;
 		
 		forGLRun.run();
+		
+	// was Export used ?
+		if ( 0 < forGLRun.export_as_code_log.length )
+		{
+			// Save the EXPORT log to a file
+			#if ( sys )
+				var export_file = "./forGL_Export_Log.txt";
+				var file = File.append( export_file, false );
+
+				var temp = "";
+				var i = 0;
+				while ( i < forGLRun.export_as_code_log.length )
+				{
+					// msg( forGLRun.export_as_code_log[ i ], GREEN, true );
+					temp = "";
+					
+					temp = nlTypeAsStr( forGLRun.export_as_code_log[ i ].token_type );
+					
+					file.writeString( temp + " " );
+					
+					temp = forGLRun.export_as_code_log[ i ].token_name;
+					
+					file.writeString( temp + "\r\n" );
+					
+					i++;
+				}
+
+				// Close Log file
+				file.close();
+			
+			#end
+		}
 		
 		forGLRun.cleanUp();
 		
