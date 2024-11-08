@@ -794,6 +794,7 @@ class  Parse
 			dictIdx = nlDict.findWord( token );
 			if ( dictIdx < 0 )
 			{
+				// NOT Found in Dictionary
 				// Use Built in switch / case for alternate words. 
 				//     Ex:  into  from  are both Assignment  =  with a given direction
 				// Side Effects: resolveType also produces extra information based on type returned
@@ -804,11 +805,31 @@ class  Parse
 			
 				var ask_similar = true;
 				
-				if ( ( NL_TYPE_UNKNOWN == type_found )
-				  && ( "=:" == prev_internal_token ) )	// into Assignment operator
+				if ( NL_TYPE_UNKNOWN == type_found )
 				{
-					// INFERENCE
-					// Will be treated as a  Local Noun  later.
+					// Perhaps a  Local  Noun
+					if ( "=:" == prev_internal_token ) 	// into Assignment operator (L to R)
+					{
+						// INFERENCE This is a  Local Noun
+						type_found = NL_NOUN_LOCAL;
+					}
+					else
+					{
+						// See if this was already known earlier in this definition
+						// 1 way is to scan from start to find same name.
+						
+						// is_local_name = nameFound( token_lower )
+						// if ( True == is_local_name )
+						//
+						// FOR NOW just allow Spelling mistakes to 
+						// go through until later Run time Error.
+						type_found = NL_NOUN_LOCAL;
+					}
+			
+				}
+				
+				if ( NL_NOUN_LOCAL == type_found )
+				{
 					// Do Not ask User about any Similar words for this  INFERRENCE  Local Noun.
 					ask_similar = false;
 				}
