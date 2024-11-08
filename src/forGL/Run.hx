@@ -132,6 +132,14 @@ class DataItem
 		if ( NL_INT == data_type )
 			ret_val = Std.string( data_int );
 			
+		if ( NL_BOOL == data_type )
+		{
+			if ( 1 == data_int )
+				ret_val = "True";
+			else
+				ret_val = "False";
+		}
+			
 		return ret_val;
 	}
 }
@@ -732,7 +740,7 @@ class  ForGL_Run
 
 
 //
-//		Helper to support showing Data stack if changed from before
+//		Helpers to support showing Data and other stacks if changed from before
 //	
 	private var prev_dataStackOut : String8 = "";
 	private var prev_opStackOut   : String8 = "";
@@ -2917,11 +2925,11 @@ try {
 		var user_Verb : String8 = "";
 		
 // Uncomment these 2 lines to get No Questions for PY Debug		
-#if ( NO_ASK )	
-		user_Verb = "2 show";
-#end
+// #if ( NO_ASK )	
+//		user_Verb = "2 show";
+// #end
 
-#if ( ! NO_ASK )
+// #if ( ! NO_ASK )
 
 	#if ( ! cs && !js )
 		goToPos( run_text_line, 0 );
@@ -2933,8 +2941,12 @@ try {
 	//	var char_code_ignored = Sys.getChar( false );
 	//	char_code_ignored = 0;
 	
-		msg( "\rExport test Verb to other programming languages (y/n) ?  " );
-		export_as_code = enterYes( );
+// COMMENTED OUT and do not ask 
+// Experimental and crashing / logging / changing
+//
+//		msg( "\rExport test Verb to other programming languages (y/n) ?  " );
+//		export_as_code = enterYes( );
+//
 
 		run_text_line++;
 		msg( "\r" );
@@ -3090,7 +3102,7 @@ try {
 			return ForGL_ui.enterYourVerb_return;
 	#end
 
-#end		// #if  ! NO_ASK
+// #end		// #if  ! NO_ASK
 
 		var user_Verb_lc = Strings.toLowerCase8( user_Verb );
 		if ( ( "main"      == user_Verb_lc )	//  Main ()  entry point  support
@@ -4681,10 +4693,7 @@ viewDataOpNouns( runStack, dataStack, opStack, nouns, dataOpNoun_text_line );
 				callStack.push( verb_name );
 				
 				// Exports
-				if ( 0 == exportStack.length )
-					exportStack.push( verb_name );
-				else
-					addName( exportStack, verb_name );
+				addName( exportStack, verb_name );
 			}
 			
 			
