@@ -211,6 +211,7 @@ class  NLDictionary
 		msg( "\n" );			// move 1 line down
 		eraseToLineEnd( 0 );
 		
+		// Must be  Y or y  or else not show and done
 		if ( ( 0x59 != char_code )
 		  && ( 0x79 != char_code ) )
 		{
@@ -272,8 +273,16 @@ class  NLDictionary
 //				internal_word = Utf8_to_OEM.oemStr( internal_word );
 //			}
 			
-		// Visible word
+		
 			color = getTypeColor( word_type );
+			
+		// For Dictionary display use RED color for  NOUNS  global variables
+			if ( NL_NOUN == word_type )
+			{
+				color = RED;
+			}
+			
+		// Visible word
 			if ( 7 < visible_word.length8() )
 				msg( visible_word + "\t", color );
 			else
@@ -281,9 +290,9 @@ class  NLDictionary
 			
 		// Internal word
 			if ( 7 < internal_word.length8() )
-				msg( internal_word + "\t" );
+				msg( internal_word + "\t", color );
 			else
-				msg( internal_word + "\t\t" );
+				msg( internal_word + "\t\t", color );
 
 		// Meaning
 			if ( NL_OPERATOR == word_type )
@@ -299,26 +308,26 @@ class  NLDictionary
 				if ( NL_NOUN == word_type )
 				{
 					if ( NL_STR == unique_Dictionary_Words[ j ].token_noun_data )
-						msg( string_data + "\n" );
+						msg( string_data + "\n", color );
 					else
 					if ( NL_BOOL == unique_Dictionary_Words[ j ].token_noun_data )
 					{
 						if ( 1 == unique_Dictionary_Words[ j ].token_int )
-							msg( "true\n" );
+							msg( "true\n", color );
 						else
-							msg( "false\n" );
+							msg( "false\n", color );
 					}
 					else
 					if ( NL_INT == unique_Dictionary_Words[ j ].token_noun_data )
-						msg( Std.string( unique_Dictionary_Words[ j ].token_int ) + "\n" );
+						msg( Std.string( unique_Dictionary_Words[ j ].token_int ) + "\n", color );
 					else
 					if ( NL_FLOAT == unique_Dictionary_Words[ j ].token_noun_data )
-						msg( Std.string( unique_Dictionary_Words[ j ].token_float ) + "\n" );
+						msg( Std.string( unique_Dictionary_Words[ j ].token_float ) + "\n", color );
 				}
 				else
 				if ( NL_VERB == word_type )
 				{
-					msg( string_data + "\n" );
+					msg( string_data + "\n", color );
 					
 				// TODO:  Try to show the Verb as correctly colored tokens
 				//		best way MAY be to refactor the 
