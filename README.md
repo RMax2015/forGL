@@ -1,6 +1,6 @@
 # forGL is a 4GL general purpose programming language.
 
-# NEW Version 0.0.3  built as  forGL.py  Oct 25, 2024
+# NEW Version 0.0.3  built as  forGL.py  Nov 16, 2024
 
 # forGL Web Site (expect more changes here):
 https://www.forgl.org
