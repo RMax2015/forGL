@@ -279,7 +279,7 @@ class  NLDictionary
 		// For Dictionary display use RED color for  NOUNS  global variables
 			if ( NL_NOUN == word_type )
 			{
-				color = RED;
+				color = RED;	// Global variable !
 			}
 			
 		// Visible word
@@ -327,16 +327,53 @@ class  NLDictionary
 				else
 				if ( NL_VERB == word_type )
 				{
-					msg( string_data + "\n", color );
+					// This will show Verb text as same color as a Verb.
+				//	msg( string_data + "\n", color );
 					
-				// TODO:  Try to show the Verb as correctly colored tokens
-				//		best way MAY be to refactor the 
-				//		calling context to be AFTER a Dictionary is fully resolved and ready to run Verbs
-				// 		the current calling context is BEFORE where less info is available
-				//		see code in Run.hx after ~ line 4150  CHECK FOR VERB
-				//	var nl_Parse : Parse;
-				//	var verb_tokens = nl_Parse.parse( string_data, PARSE_LEFT_TO_RIGHT, false );
+				// Show the Verb as correctly colored tokens
+					var nl_Parse = new Parse();
+					
+					var show_dict_tokens = nl_Parse.parse( string_data, PARSE_LEFT_TO_RIGHT, false );
+					
+					if ( 0 == show_dict_tokens.length )
+					{
+						// This will show Verb text as same color as a Verb.
+						// Maybe there were only Comments as the Verb text.
+						msg( string_data + "\n", color );
+					}
+					else
+					{
+						var verb_tokens : Array<NLToken> = new Array<NLToken>();
+						
+						var text_line_count = nl_Parse.resolveTokens( show_dict_tokens, this, verb_tokens, false );
+					
+						var token_color = WHITE;
+						var k : Int = 0;
+						while ( k < verb_tokens.length )
+						{
+							var verb_token_visible_word = verb_tokens[ k ].visible_token;
+							var idx = findWord( verb_token_visible_word );
+							
+							if ( idx < 0 )
+								token_color = getTypeColor( NL_NOUN_LOCAL ); // Inference: Not found in Dictionary == Local variable
+							else
+							{
+								var verb_token_type          = unique_Dictionary_Words[ idx ].token_type;
+									verb_token_visible_word  = unique_Dictionary_Words[ idx ].visible_token;
+								var verb_token_internal_word = unique_Dictionary_Words[ idx ].internal_token;
 
+								
+								if ( NL_NOUN == verb_token_type )
+									token_color = RED;		// Global variable  warning color
+								else
+									token_color = getTypeColor( verb_token_type );
+							}
+								
+							msg( verb_token_visible_word + " ", token_color );
+							k++;
+						}
+						msg( "\n" );
+					}
 				}
 				else
 				if ( NL_VERB_BI  == word_type )
