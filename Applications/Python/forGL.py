@@ -82,7 +82,6 @@ class Enum:
         _hx_o.index = None
         _hx_o.params = None
 
-
 class Class: pass
 
 
@@ -1063,54 +1062,51 @@ class forGL_NLDictionary:
             forGL_ForGL_ui.eraseToLineEnd(0)
         return lines_added
 
-    def findWord(self,word_name):
-        if (0 == ((0 if ((word_name is None)) else len(word_name)))):
+    def inspectRuntime(self, variable_name=None):
+        if variable_name:
+            # Inspect a specific variable
+            value = self.runtime_context.get(variable_name, None)
+            if value is not None:
+                print(f"{variable_name} ({type(value).__name__}): {value}")
+            else:
+                print(f"Variable '{variable_name}' not found.")
+        else:
+            # Inspect all variables
+            print("Current Runtime Variables:")
+            for name, value in self.runtime_context.items():
+                print(f"  {name} ({type(value).__name__}): {value}")
+
+    """
+    builds a dictionary (word_index) that maps each unique word's visible token (in lowercase)
+    to its corresponding index in the unique_Dictionary_Words list for efficient lookups
+    """
+    def buildWordIndex(self):
+        self.word_index = {word.visible_token.lower(): idx for idx, word in enumerate(self.unique_Dictionary_Words)}
+
+
+    #use a dictionary for efficient lookups / finds the index of a given word in the word_index dictionary.
+    def findWord(self, word_name):
+        if not word_name:
             return -2
-        search_name = hx_strings_Strings.toLowerCase8(word_name)
-        i = 0
-        while (i < len(self.unique_Dictionary_Words)):
-            if (search_name == hx_strings_Strings.toLowerCase8((self.unique_Dictionary_Words[i] if i >= 0 and i < len(self.unique_Dictionary_Words) else None).visible_token)):
-                return i
-            i = (i + 1)
-        return -1
+        if not hasattr(self, 'word_index') or not self.word_index:
+            self.buildWordIndex()
+        return self.word_index.get(word_name.lower(), -1)
 
-    def levenshteinDistance(self,s1,s2):
-        m = (0 if ((s1 is None)) else len(s1))
-        n = (0 if ((s2 is None)) else len(s2))
-        costs = list()
-        k = 0
-        while (k <= n):
-            costs.append(k)
-            k = (k + 1)
-        corner = 0
-        upper = 0
-        t = 0
-        j = 0
-        i = 0
-        s1_it1 = None
-        it2 = 0
-        it1 = 0
-        while (it1 != m):
-            python_internal_ArrayImpl._set(costs, 0, (i + 1))
-            corner = i
-            j = 0
-            s1_it1 = hx_strings_Strings.charAt8(s1,it1)
-            it2 = 0
-            while (it2 != n):
-                upper = python_internal_ArrayImpl._get(costs, (j + 1))
-                if (s1_it1 == hx_strings_Strings.charAt8(s2,it2)):
-                    python_internal_ArrayImpl._set(costs, (j + 1), corner)
-                else:
-                    t = (upper if ((upper < corner)) else corner)
-                    python_internal_ArrayImpl._set(costs, (j + 1), ((((costs[j] if j >= 0 and j < len(costs) else None) if (((costs[j] if j >= 0 and j < len(costs) else None) < t)) else t)) + 1))
-                corner = upper
-                it2 = (it2 + 1)
-                j = (j + 1)
-            it1 = (it1 + 1)
-            i = (i + 1)
-        result = (costs[n] if n >= 0 and n < len(costs) else None)
-        return result
-
+    #Optimize for space using a single row:
+    def levenshteinDistance(self, s1, s2):
+        if len(s1) < len(s2):
+            s1, s2 = s2, s1
+        previous_row = range(len(s2) + 1)
+        for i, c1 in enumerate(s1):
+            current_row = [i + 1]
+            for j, c2 in enumerate(s2):
+                insertions = previous_row[j + 1] + 1
+                deletions = current_row[j] + 1
+                substitutions = previous_row[j] + (c1 != c2)
+                current_row.append(min(insertions, deletions, substitutions))
+            previous_row = current_row
+        return previous_row[-1]
+    
     def findCommonPrefix(self,_hx_str,str2):
         prefixNew = ""
         count = (0 if ((_hx_str is None)) else len(_hx_str))
@@ -6130,6 +6126,13 @@ class forGL_ForGL_Run:
                             _this69 = self.callStack
                             if (len(_this69) != 0):
                                 _this69.pop()
+                        elif (("inspect" == (self.runStack[ip] if ip >= 0 and ip < len(self.runStack) else None).internal_token)):
+                            # Extract variable name (if provided)
+                            ommand_tokens = self.runStack[ip]
+                            variable_name = command_tokens.internal_token if len(command_tokens.token_str) > 0 else None
+    
+                            # Call the inspectRuntime method to display variables
+                            self.inspectRuntime(variable_name)
                     if (0 >= verb_move_ahead):
                         forGL_ForGL_ui.error((("INTERNAL ERROR: verb_move_ahead = " + Std.string(verb_move_ahead)) + "\n"))
                         verb_move_ahead = 1
