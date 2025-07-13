@@ -11,7 +11,8 @@ forGL allows you to run your programs in several different ways.
 forGL is an application that sometimes acts like a programming language.
 When using forGL you may use your own language and not just English.
 
-forGL allows your programs to be saved to various programming languages.
+forGL allows your programs to be saved to various programming languages,
+when the Export feature is implemented and tested.
 
 	Key Ideas
 -----------------
@@ -39,7 +40,7 @@ Different colors are used to show different Word types.
 Setup  (there is no install program)
 ====================================
 
-You just create a directory and copy some files.
+Create a directory and copy some files.
 
 Windows OS users need to do a few more steps as below.
 
@@ -54,10 +55,11 @@ Place the files in the new directory.
 
 	Run forGL by:
 	IF you have Python 3.x installed
-python forGL.py
+python forGL.py dictionary_file
 
-	IF you have Java 6 or higher installed (Java 8 or higher recommended)
-java -jar forGL.jar
+////   Commented out, does not work with latest Java versions
+////   IF you have Java 6 or higher installed (Java 8 or higher recommended)
+////   java -jar forGL.jar dictionary_file
 
 Now you are ready to try various forGL features.
 Please see the  Operations  section below for more information.
@@ -122,6 +124,9 @@ and the name of your new  .bat  file.
 				  Operations  Quick  Start
 ==============================================================================
 forGL has been tested on Windows 7 and 10
+
+but really :
+you can run  forGL.py  on any platform with Python 3.x installed
 
 
 	forGL  Dictionary  (in memory and added to from a file)
