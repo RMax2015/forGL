@@ -1,6 +1,6 @@
 forGL    R E A D    M E    F I R S T
 
-revised:  April, 2019
+revised:  July, 2025
 by:       Randy Maxwell
 
 	Summary
